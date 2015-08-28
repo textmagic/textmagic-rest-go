@@ -12,7 +12,7 @@ func TestMessages(t *testing.T) {
 	username := "xxx"
 	token := "xxx"
 
-	interval := 500 * time.Millisecond
+	interval := time.Second
 	client := textmagic.NewClient(username, token)
 
 	newMessageText := "API GOLANG TEST"
@@ -45,21 +45,20 @@ func TestMessages(t *testing.T) {
 	assert.NotEmpty(t, sessions.Page)
 	assert.NotEmpty(t, sessions.Limit)
 	assert.NotEmpty(t, sessions.PageCount)
-	assert.NotEmpty(t, sessions.Sessions[0].Id)
-	assert.NotEmpty(t, sessions.Sessions[0].Text)
-	assert.NotEmpty(t, sessions.Sessions[0].StartTime)
-	assert.NotEmpty(t, sessions.Sessions[0].Source)
-	assert.NotEmpty(t, sessions.Sessions[0].ReferenceId)
-	assert.NotEmpty(t, sessions.Sessions[0].NumbersCount)
+	assert.NotEmpty(t, sessions.Resources[0].Id)
+	assert.NotEmpty(t, sessions.Resources[0].Text)
+	assert.NotEmpty(t, sessions.Resources[0].StartTime)
+	assert.NotEmpty(t, sessions.Resources[0].Source)
+	assert.NotEmpty(t, sessions.Resources[0].ReferenceId)
+	assert.NotEmpty(t, sessions.Resources[0].NumbersCount)
 
 	time.Sleep(interval)
 	// Get session by id
 
-	session, _ := client.GetSession(sessions.Sessions[0].Id)
+	session, _ := client.GetSession(sessions.Resources[0].Id)
 
-	assert.Equal(t, sessions.Sessions[0].Id, session.Id)
-	assert.Equal(t, sessions.Sessions[0].Text, session.Text)
-
+	assert.Equal(t, sessions.Resources[0].Id, session.Id)
+	assert.Equal(t, sessions.Resources[0].Text, session.Text)
 	time.Sleep(interval)
 	// Get session's messages
 
@@ -69,7 +68,7 @@ func TestMessages(t *testing.T) {
 	assert.NotEmpty(t, sessionMessages.Page)
 	assert.NotEmpty(t, sessionMessages.Limit)
 	assert.NotEmpty(t, sessionMessages.PageCount)
-	assert.Equal(t, newMessageText, sessionMessages.Messages[0].Text)
+	assert.Equal(t, newMessageText, sessionMessages.Resources[0].Text)
 
 	time.Sleep(interval)
 	// Get Bulk Session List
@@ -80,14 +79,14 @@ func TestMessages(t *testing.T) {
 	assert.NotEmpty(t, bulks.Page)
 	assert.NotEmpty(t, bulks.Limit)
 	assert.NotEmpty(t, bulks.PageCount)
-	assert.NotEmpty(t, bulks.Sessions[0].Id)
+	assert.NotEmpty(t, bulks.Resources[0].Id)
 	assert.Equal(t, uint32(1), bulks.Page)
 	assert.Equal(t, uint8(10), bulks.Limit)
 
 	time.Sleep(interval)
 	// Get Bulk Session by id
 
-	bulk, err := client.GetBulkSession(bulks.Sessions[0].Id)
+	bulk, err := client.GetBulkSession(bulks.Resources[0].Id)
 
 	assert.Nil(t, err)
 	assert.NotEmpty(t, bulk.Id)
@@ -106,9 +105,9 @@ func TestMessages(t *testing.T) {
 	assert.NotEmpty(t, chatList.Page)
 	assert.NotEmpty(t, chatList.Limit)
 	assert.NotEmpty(t, chatList.PageCount)
-	assert.NotEqual(t, len(chatList.Chats), 0)
+	assert.NotEqual(t, len(chatList.Resources), 0)
 
-	chat := chatList.Chats[0]
+	chat := chatList.Resources[0]
 
 	assert.NotEmpty(t, chat.Id)
 	assert.NotEmpty(t, chat.Phone)
@@ -117,24 +116,24 @@ func TestMessages(t *testing.T) {
 	time.Sleep(interval)
 	// Get Chat messages
 
-	// chatMessageList, err := client.GetChatMessageList(chat.Phone, map[string]string{})
+	chatMessageList, err := client.GetChatMessageList(chat.Phone, map[string]string{})
 
-	// assert.Nil(t, err)
-	// assert.NotEmpty(t, chatMessageList.Page)
-	// assert.NotEmpty(t, chatMessageList.Limit)
-	// assert.NotEmpty(t, chatMessageList.PageCount)
-	// assert.NotEqual(t, len(chatMessageList.Messages), 0)
+	assert.Nil(t, err)
+	assert.NotEmpty(t, chatMessageList.Page)
+	assert.NotEmpty(t, chatMessageList.Limit)
+	assert.NotEmpty(t, chatMessageList.PageCount)
+	assert.NotEqual(t, len(chatMessageList.Resources), 0)
 
-	// chatMessage := chatMessageList.Messages[0]
+	chatMessage := chatMessageList.Resources[0]
 
-	// assert.NotEmpty(t, chatMessage.Id)
-	// assert.NotEmpty(t, chatMessage.Sender)
-	// assert.NotEmpty(t, chatMessage.MessageTime)
-	// assert.NotEmpty(t, chatMessage.Text)
-	// assert.NotEmpty(t, chatMessage.Receiver)
-	// assert.NotEmpty(t, chatMessage.Status)
-	// assert.NotEmpty(t, chatMessage.FirstName)
-	// assert.NotEmpty(t, chatMessage.LastName)
+	assert.NotEmpty(t, chatMessage.Id)
+	assert.NotEmpty(t, chatMessage.Sender)
+	assert.NotEmpty(t, chatMessage.MessageTime)
+	assert.NotEmpty(t, chatMessage.Text)
+	assert.NotEmpty(t, chatMessage.Receiver)
+	assert.NotEmpty(t, chatMessage.Status)
+	assert.NotEmpty(t, chatMessage.FirstName)
+	assert.NotEmpty(t, chatMessage.LastName)
 
 	time.Sleep(interval)
 	// Get messages list
@@ -145,7 +144,7 @@ func TestMessages(t *testing.T) {
 	assert.NotEmpty(t, listMessages.Page)
 	assert.NotEmpty(t, listMessages.Limit)
 	assert.NotEmpty(t, listMessages.PageCount)
-	assert.NotEqual(t, len(listMessages.Messages), 0)
+	assert.NotEqual(t, len(listMessages.Resources), 0)
 
 	time.Sleep(interval)
 	// Get messages price
@@ -222,9 +221,9 @@ func TestMessages(t *testing.T) {
 	time.Sleep(interval)
 	// Get inbox message by id
 
-	reply, _ := client.GetReply(replies.Replies[0].Id)
+	reply, _ := client.GetReply(replies.Resources[0].Id)
 
-	assert.Equal(t, replies.Replies[0].Text, reply.Text)
+	assert.Equal(t, replies.Resources[0].Text, reply.Text)
 
 	time.Sleep(interval)
 	// Create scheduled message

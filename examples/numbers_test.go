@@ -12,7 +12,7 @@ func TestNumbers(t *testing.T) {
 	username := "xxx"
 	token := "xxx"
 
-	interval := 500 * time.Millisecond
+	interval := time.Second
 	client := textmagic.NewClient(username, token)
 
 	time.Sleep(interval)
@@ -57,12 +57,12 @@ func TestNumbers(t *testing.T) {
 	assert.NotEmpty(t, numbers.Page)
 	assert.NotEmpty(t, numbers.Limit)
 	assert.NotEmpty(t, numbers.PageCount)
-	assert.NotEqual(t, 0, len(numbers.Numbers))
+	assert.NotEqual(t, 0, len(numbers.Resources))
 
 	time.Sleep(interval)
 	// Get Number by id
 
-	number, _ := client.GetNumber(numbers.Numbers[0].Id)
+	number, _ := client.GetNumber(numbers.Resources[0].Id)
 
 	assert.NotEmpty(t, number.Id)
 	assert.NotEmpty(t, number.PurchasedAt)
@@ -70,8 +70,8 @@ func TestNumbers(t *testing.T) {
 	assert.NotEmpty(t, number.Phone)
 	assert.NotEmpty(t, number.Status)
 
-	assert.Equal(t, numbers.Numbers[0].Id, number.Id)
-	assert.Equal(t, numbers.Numbers[0].Phone, number.Phone)
+	assert.Equal(t, numbers.Resources[0].Id, number.Id)
+	assert.Equal(t, numbers.Resources[0].Phone, number.Phone)
 
 	country := number.Country
 

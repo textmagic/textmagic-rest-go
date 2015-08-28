@@ -26,7 +26,7 @@ type SenderIdList struct {
 	Page      uint32     `json:"page"`
 	Limit     uint8      `json:"limit"`
 	PageCount uint32     `json:"pageCount"`
-	SenderIds []SenderId `json:"resources"`
+	Resources []SenderId `json:"resources"`
 }
 
 type Sources struct {

@@ -23,10 +23,10 @@ type Unsubscriber struct {
 }
 
 type UnsubscriberList struct {
-	Page          uint32         `json:"page"`
-	Limit         uint8          `json:"limit"`
-	PageCount     uint32         `json:"pageCount"`
-	Unsubscribers []Unsubscriber `json:"resources"`
+	Page      uint32         `json:"page"`
+	Limit     uint8          `json:"limit"`
+	PageCount uint32         `json:"pageCount"`
+	Resources []Unsubscriber `json:"resources"`
 }
 
 /*

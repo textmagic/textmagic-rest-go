@@ -28,10 +28,10 @@ type ContactCustomField struct {
 }
 
 type CustomFieldList struct {
-	Page         uint32        `json:"page"`
-	Limit        uint8         `json:"limit"`
-	PageCount    uint32        `json:"pageCount"`
-	CustomFields []CustomField `json:"resources"`
+	Page      uint32        `json:"page"`
+	Limit     uint8         `json:"limit"`
+	PageCount uint32        `json:"pageCount"`
+	Resources []CustomField `json:"resources"`
 }
 
 /*

@@ -11,7 +11,7 @@ func TestUser(t *testing.T) {
 	username := "xxx"
 	token := "xxx"
 
-	interval := 500 * time.Millisecond
+	interval := time.Second
 	client := textmagic.NewClient(username, token)
 
 	time.Sleep(interval)
@@ -31,10 +31,10 @@ func TestUser(t *testing.T) {
 	assert.NotEmpty(t, messagingStat[0].Costs)
 	assert.NotEmpty(t, messagingStat[0].MessagesReceived)
 	assert.NotEmpty(t, messagingStat[0].MessagesSentDelivered)
-	// assert.NotEmpty(t, messagingStat[0].MessagesSentAccepted)
-	// assert.NotEmpty(t, messagingStat[0].MessagesSentBuffered)
+	assert.NotEmpty(t, messagingStat[0].MessagesSentAccepted)
+	assert.NotEmpty(t, messagingStat[0].MessagesSentBuffered)
 	assert.NotEmpty(t, messagingStat[0].MessagesSentFailed)
-	// assert.NotEmpty(t, messagingStat[0].MessagesSentRejected)
+	assert.NotEmpty(t, messagingStat[0].MessagesSentRejected)
 	assert.NotEmpty(t, messagingStat[0].MessagesSentParts)
 
 	time.Sleep(interval)
@@ -49,9 +49,9 @@ func TestUser(t *testing.T) {
 	assert.NotEmpty(t, spdgStat.Page)
 	assert.NotEmpty(t, spdgStat.Limit)
 	assert.NotEmpty(t, spdgStat.PageCount)
-	assert.NotEmpty(t, len(spdgStat.SpendingStats))
+	assert.NotEmpty(t, len(spdgStat.Resources))
 
-	sstat := spdgStat.SpendingStats[0]
+	sstat := spdgStat.Resources[0]
 
 	assert.NotEmpty(t, sstat.Id)
 	assert.NotEmpty(t, sstat.Date)
@@ -80,9 +80,9 @@ func TestUser(t *testing.T) {
 	assert.NotEmpty(t, subaccounts.Page)
 	assert.NotEmpty(t, subaccounts.Limit)
 	assert.NotEmpty(t, subaccounts.PageCount)
-	assert.NotEmpty(t, len(subaccounts.Users))
+	assert.NotEmpty(t, len(subaccounts.Resources))
 
-	sub1 := subaccounts.Users[0]
+	sub1 := subaccounts.Resources[0]
 
 	assert.NotEmpty(t, sub1.Id)
 	assert.NotEmpty(t, sub1.Username)
@@ -170,7 +170,9 @@ func TestUser(t *testing.T) {
 
 	assert.NotEmpty(t, res["href"])
 
-	userUpdated, _ := client.GetUser()
+	time.Sleep(interval)
+
+	userUpdated, err := client.GetUser()
 
 	assert.Equal(t, "GO", userUpdated.FirstName)
 	assert.Equal(t, "Test", userUpdated.LastName)
@@ -187,6 +189,8 @@ func TestUser(t *testing.T) {
 	res, _ = client.UpdateUser(updateUserData)
 
 	assert.NotEmpty(t, res["href"])
+
+	time.Sleep(interval)
 
 	user1, _ := client.GetUser()
 

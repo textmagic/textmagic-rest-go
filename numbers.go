@@ -33,7 +33,7 @@ type NumberList struct {
 	Page      uint32   `json:"page"`
 	Limit     uint8    `json:"limit"`
 	PageCount uint32   `json:"pageCount"`
-	Numbers   []Number `json:"resources"`
+	Resources []Number `json:"resources"`
 }
 
 type AvailableNumbers struct {

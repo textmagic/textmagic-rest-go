@@ -21,7 +21,7 @@ type InvoiceList struct {
 	Page      uint32    `json:"page"`
 	Limit     uint8     `json:"limit"`
 	PageCount uint32    `json:"pageCount"`
-	Invoices  []Invoice `json:"resources"`
+	Resources []Invoice `json:"resources"`
 }
 
 /*

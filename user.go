@@ -40,10 +40,10 @@ type SpendingStat struct {
 }
 
 type SpendingStatList struct {
-	Page          uint32         `json:"page"`
-	Limit         uint8          `json:"limit"`
-	PageCount     uint32         `json:"pageCount"`
-	SpendingStats []SpendingStat `json:"resources"`
+	Page      uint32         `json:"page"`
+	Limit     uint8          `json:"limit"`
+	PageCount uint32         `json:"pageCount"`
+	Resources []SpendingStat `json:"resources"`
 }
 
 type TimezoneList map[string]string
@@ -84,7 +84,7 @@ type UserList struct {
 	Page      uint32 `json:"page"`
 	Limit     uint8  `json:"limit"`
 	PageCount uint32 `json:"pageCount"`
-	Users     []User `json:"resources"`
+	Resources []User `json:"resources"`
 }
 
 /*

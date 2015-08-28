@@ -11,7 +11,7 @@ func TestInvoices(t *testing.T) {
 	username := "xxx"
 	token := "xxx"
 
-	interval := 500 * time.Millisecond
+	interval := time.Second
 	client := textmagic.NewClient(username, token)
 
 	time.Sleep(interval)
@@ -22,9 +22,9 @@ func TestInvoices(t *testing.T) {
 	assert.NotEmpty(t, invoices.Page)
 	assert.NotEmpty(t, invoices.Limit)
 	assert.NotEmpty(t, invoices.PageCount)
-	assert.NotEqual(t, 0, len(invoices.Invoices))
+	assert.NotEqual(t, 0, len(invoices.Resources))
 
-	inv := invoices.Invoices[0]
+	inv := invoices.Resources[0]
 	assert.NotEmpty(t, inv.Id)
 	assert.NotEmpty(t, inv.Bundle)
 	assert.NotEmpty(t, inv.Currency)

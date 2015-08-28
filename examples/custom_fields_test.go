@@ -15,8 +15,9 @@ func TestCustomFields(t *testing.T) {
 	client := textmagic.NewClient(username, token)
 
 	newCustomFieldName := "Test Go Custom Field"
+	interval := time.Second
 
-	time.Sleep(500 * time.Millisecond)
+	time.Sleep(interval)
 	// Create a new custom field
 
 	newCustomFieldData := map[string]string{
@@ -28,7 +29,7 @@ func TestCustomFields(t *testing.T) {
 	assert.NotEmpty(t, newCustomField.Id)
 	assert.NotEmpty(t, newCustomField.Href)
 
-	time.Sleep(500 * time.Millisecond)
+	time.Sleep(interval)
 	// Get custom field
 
 	customField, _ := client.GetCustomField(newCustomField.Id)
@@ -38,7 +39,7 @@ func TestCustomFields(t *testing.T) {
 	assert.NotEmpty(t, customField.CreatedAt)
 	assert.Equal(t, customField.Name, newCustomFieldName)
 
-	time.Sleep(500 * time.Millisecond)
+	time.Sleep(interval)
 	// Get custom field list
 
 	listCustomFields, _ := client.GetCustomFieldList(map[string]string{})
@@ -46,10 +47,10 @@ func TestCustomFields(t *testing.T) {
 	assert.NotEmpty(t, listCustomFields.Page)
 	assert.NotEmpty(t, listCustomFields.Limit)
 	assert.NotEmpty(t, listCustomFields.PageCount)
-	assert.NotEqual(t, len(listCustomFields.CustomFields), 0)
-	assert.NotEmpty(t, listCustomFields.CustomFields[0].Id)
+	assert.NotEqual(t, len(listCustomFields.Resources), 0)
+	assert.NotEmpty(t, listCustomFields.Resources[0].Id)
 
-	time.Sleep(500 * time.Millisecond)
+	time.Sleep(interval)
 	// Update custom field
 
 	updatedName := "updated go customfield"
@@ -62,7 +63,7 @@ func TestCustomFields(t *testing.T) {
 	assert.NotEmpty(t, updatedCustomFieldNew.Href)
 	assert.Equal(t, updatedCustomFieldNew.Id, customField.Id)
 
-	time.Sleep(500 * time.Millisecond)
+	time.Sleep(interval)
 	// Get updated custom field
 
 	updatedCustomField, _ := client.GetCustomField(newCustomField.Id)
@@ -82,19 +83,19 @@ func TestCustomFields(t *testing.T) {
 	var cid uint32
 	newListName := "new_list_custom_fields"
 
-	if len(listSearchContact.Contacts) > 0 {
-		time.Sleep(500 * time.Millisecond)
-		cid = listSearchContact.Contacts[0].Id
+	if len(listSearchContact.Resources) > 0 {
+		time.Sleep(interval)
+		cid = listSearchContact.Resources[0].Id
 		client.DeleteContact(cid)
 	}
 
-	time.Sleep(500 * time.Millisecond)
+	time.Sleep(interval)
 
 	newList, _ := client.CreateList(map[string]string{
 		"name": newListName,
 	})
 
-	time.Sleep(500 * time.Millisecond)
+	time.Sleep(interval)
 
 	newContact, _ := client.CreateContact(map[string]string{
 		"lists": strconv.Itoa(int(newList.Id)),
@@ -102,7 +103,7 @@ func TestCustomFields(t *testing.T) {
 	})
 	cid = newContact.Id
 
-	time.Sleep(500 * time.Millisecond)
+	time.Sleep(interval)
 	// Update contact's custom field value.
 
 	updatedValue := "gopher"
@@ -116,7 +117,7 @@ func TestCustomFields(t *testing.T) {
 	assert.NotEmpty(t, updatedContact.Id)
 	assert.NotEmpty(t, updatedContact.Href)
 
-	time.Sleep(500 * time.Millisecond)
+	time.Sleep(interval)
 	// Get update custom field value
 
 	contact, _ := client.GetContact(updatedContact.Id)
@@ -131,17 +132,17 @@ func TestCustomFields(t *testing.T) {
 		}
 	}
 
-	time.Sleep(500 * time.Millisecond)
+	time.Sleep(interval)
 	// Delete a list
 
 	client.DeleteList(newList.Id)
 
-	time.Sleep(500 * time.Millisecond)
+	time.Sleep(interval)
 	// Delete a contact
 
 	client.DeleteContact(cid)
 
-	time.Sleep(500 * time.Millisecond)
+	time.Sleep(interval)
 	// Delete a custom field
 
 	r, _ := client.DeleteCustomField(newCustomField.Id)

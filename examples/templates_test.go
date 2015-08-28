@@ -11,7 +11,7 @@ func TestTemplates(t *testing.T) {
 	username := "xxx"
 	token := "xxx"
 
-	interval := 500 * time.Millisecond
+	interval := time.Second
 	client := textmagic.NewClient(username, token)
 
 	time.Sleep(interval)
@@ -43,7 +43,7 @@ func TestTemplates(t *testing.T) {
 	assert.NotEmpty(t, templates.Page)
 	assert.NotEmpty(t, templates.Limit)
 	assert.NotEmpty(t, templates.PageCount)
-	assert.NotEmpty(t, len(templates.Templates))
+	assert.NotEmpty(t, len(templates.Resources))
 
 	time.Sleep(interval)
 	// Update template

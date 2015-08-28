@@ -43,7 +43,7 @@ type MessageList struct {
 	Page      uint32    `json:"page"`
 	Limit     uint8     `json:"limit"`
 	PageCount uint32    `json:"pageCount"`
-	Messages  []Message `json:"resources"`
+	Resources []Message `json:"resources"`
 }
 
 type Session struct {
@@ -60,7 +60,7 @@ type SessionList struct {
 	Page      uint32    `json:"page"`
 	Limit     uint8     `json:"limit"`
 	PageCount uint32    `json:"pageCount"`
-	Sessions  []Session `json:"resources"`
+	Resources []Session `json:"resources"`
 }
 
 type BulkSession struct {
@@ -77,7 +77,7 @@ type BulkSessionList struct {
 	Page      uint32        `json:"page"`
 	Limit     uint8         `json:"limit"`
 	PageCount uint32        `json:"pageCount"`
-	Sessions  []BulkSession `json:"resources"`
+	Resources []BulkSession `json:"resources"`
 }
 
 type Chat struct {
@@ -92,7 +92,7 @@ type ChatList struct {
 	Page      uint32 `json:"page"`
 	Limit     uint8  `json:"limit"`
 	PageCount uint32 `json:"pageCount"`
-	Chats     []Chat `json:"resources"`
+	Resources []Chat `json:"resources"`
 }
 
 type ChatMessage struct {
@@ -110,7 +110,7 @@ type ChatMessageList struct {
 	Page      uint32        `json:"page"`
 	Limit     uint8         `json:"limit"`
 	PageCount uint32        `json:"pageCount"`
-	Messages  []ChatMessage `json:"resources"`
+	Resources []ChatMessage `json:"resources"`
 }
 
 type CountryPrice struct {
@@ -137,7 +137,7 @@ type ReplyList struct {
 	Page      uint32  `json:"page"`
 	Limit     uint8   `json:"limit"`
 	PageCount uint32  `json:"pageCount"`
-	Replies   []Reply `json:"resources"`
+	Resources []Reply `json:"resources"`
 }
 
 type Scheduled struct {
@@ -148,10 +148,10 @@ type Scheduled struct {
 }
 
 type ScheduledList struct {
-	Page       uint32      `json:"page"`
-	Limit      uint8       `json:"limit"`
-	PageCount  uint32      `json:"pageCount"`
-	Scheduleds []Scheduled `json:"resources"`
+	Page      uint32      `json:"page"`
+	Limit     uint8       `json:"limit"`
+	PageCount uint32      `json:"pageCount"`
+	Resources []Scheduled `json:"resources"`
 }
 
 /*

@@ -25,7 +25,7 @@ type TemplateList struct {
 	Page      uint32     `json:"page"`
 	Limit     uint8      `json:"limit"`
 	PageCount uint32     `json:"pageCount"`
-	Templates []Template `json:"resources"`
+	Resources []Template `json:"resources"`
 }
 
 /*

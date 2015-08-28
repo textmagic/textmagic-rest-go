@@ -11,7 +11,7 @@ func TestSenderids(t *testing.T) {
 	username := "xxx"
 	token := "xxx"
 
-	interval := 500 * time.Millisecond
+	interval := time.Second
 	client := textmagic.NewClient(username, token)
 
 	time.Sleep(interval)
@@ -73,7 +73,7 @@ func TestSenderids(t *testing.T) {
 	assert.NotEmpty(t, senderIds.Page)
 	assert.NotEmpty(t, senderIds.Limit)
 	assert.NotEmpty(t, senderIds.PageCount)
-	assert.NotEqual(t, 0, len(senderIds.SenderIds))
+	assert.NotEqual(t, 0, len(senderIds.Resources))
 
 	time.Sleep(interval)
 	// Delete sender ID

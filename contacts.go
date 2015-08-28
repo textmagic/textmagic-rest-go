@@ -28,7 +28,7 @@ type ContactList struct {
 	Page      uint32    `json:"page"`
 	Limit     uint8     `json:"limit"`
 	PageCount uint32    `json:"pageCount"`
-	Contacts  []Contact `json:"resources"`
+	Resources []Contact `json:"resources"`
 }
 
 /*

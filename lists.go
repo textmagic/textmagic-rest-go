@@ -26,7 +26,7 @@ type ListList struct {
 	Page      uint32 `json:"page"`
 	Limit     uint8  `json:"limit"`
 	PageCount uint32 `json:"pageCount"`
-	Lists     []List `json:"resources"`
+	Resources []List `json:"resources"`
 }
 
 /*

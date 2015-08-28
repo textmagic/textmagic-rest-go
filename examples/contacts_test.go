@@ -13,7 +13,7 @@ func TestContacts(t *testing.T) {
 	username := "xxx"
 	token := "xxx"
 
-	interval := 500 * time.Millisecond
+	interval := time.Second
 	client := textmagic.NewClient(username, token)
 
 	newListName := "New List Go Test"
@@ -28,9 +28,9 @@ func TestContacts(t *testing.T) {
 		"query": strings.ToLower(newListName),
 	}
 	listList, _ := client.GetListList(listSearchData, true)
-	if len(listList.Lists) > 0 {
+	if len(listList.Resources) > 0 {
 		time.Sleep(interval)
-		client.DeleteList(listList.Lists[0].Id)
+		client.DeleteList(listList.Resources[0].Id)
 	}
 
 	time.Sleep(interval)
@@ -40,9 +40,9 @@ func TestContacts(t *testing.T) {
 		"query": newContactPhone,
 	}
 	listSearchContact, _ := client.GetContactList(contactSearchData, true)
-	if len(listSearchContact.Contacts) > 0 {
+	if len(listSearchContact.Resources) > 0 {
 		time.Sleep(interval)
-		client.DeleteContact(listSearchContact.Contacts[0].Id)
+		client.DeleteContact(listSearchContact.Resources[0].Id)
 	}
 
 	time.Sleep(interval)
@@ -65,15 +65,15 @@ func TestContacts(t *testing.T) {
 	}
 	listList2, _ := client.GetListList(listSearchData2, true)
 
-	assert.Equal(t, 1, len(listList2.Lists))
-	assert.Equal(t, newListName, listList2.Lists[0].Name)
+	assert.Equal(t, 1, len(listList2.Resources))
+	assert.Equal(t, newListName, listList2.Resources[0].Name)
 
 	time.Sleep(interval)
 
 	// Update a list name
 	updatedListName := "updated go api test"
 	updatedList, _ := client.UpdateList(
-		listList2.Lists[0].Id,
+		listList2.Resources[0].Id,
 		map[string]string{
 			"name": updatedListName,
 		},
@@ -106,8 +106,8 @@ func TestContacts(t *testing.T) {
 	assert.NotEmpty(t, listContact.Page)
 	assert.NotEmpty(t, listContact.Limit)
 	assert.NotEmpty(t, listContact.PageCount)
-	assert.NotEqual(t, len(listContact.Contacts), 0)
-	assert.NotEmpty(t, listContact.Contacts[0].Id)
+	assert.NotEqual(t, len(listContact.Resources), 0)
+	assert.NotEmpty(t, listContact.Resources[0].Id)
 
 	time.Sleep(interval)
 
@@ -163,14 +163,14 @@ func TestContacts(t *testing.T) {
 
 	// Get lists which contact belongs to
 
-	lists, _ := client.GetContactLists(newContact.Id)
+	lists, _ := client.GetContactLists(newContact.Id, map[string]string{})
 
 	assert.NotEmpty(t, lists.Page)
 	assert.NotEmpty(t, lists.Limit)
 	assert.NotEmpty(t, lists.PageCount)
-	assert.Equal(t, len(lists.Lists), 1)
+	assert.Equal(t, len(lists.Resources), 1)
 
-	list := lists.Lists[0]
+	list := lists.Resources[0]
 
 	assert.Equal(t, list.Id, newList.Id)
 	assert.Equal(t, list.MembersCount, uint32(1))
@@ -212,8 +212,8 @@ func TestContacts(t *testing.T) {
 	assert.NotEmpty(t, listContact2.Page)
 	assert.NotEmpty(t, listContact2.Limit)
 	assert.NotEmpty(t, listContact2.PageCount)
-	assert.Equal(t, len(listContact2.Contacts), 1)
-	assert.NotEmpty(t, listContact2.Contacts[0].Id)
+	assert.Equal(t, len(listContact2.Resources), 1)
+	assert.NotEmpty(t, listContact2.Resources[0].Id)
 
 	time.Sleep(interval)
 

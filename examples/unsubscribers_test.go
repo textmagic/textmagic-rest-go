@@ -11,7 +11,7 @@ func TestUnsubscribers(t *testing.T) {
 	username := "xxx"
 	token := "xxx"
 
-	interval := 500 * time.Millisecond
+	interval := time.Second
 	client := textmagic.NewClient(username, token)
 
 	phone := "9993243232"
@@ -45,5 +45,5 @@ func TestUnsubscribers(t *testing.T) {
 	assert.Nil(t, err)
 	assert.NotEmpty(t, list.Page)
 	assert.NotEmpty(t, list.Limit)
-	assert.NotEqual(t, len(list.Unsubscribers), 0)
+	assert.NotEqual(t, len(list.Resources), 0)
 }
