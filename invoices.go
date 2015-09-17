@@ -1,53 +1,34 @@
 package textmagic
 
-import (
-	"encoding/json"
-	"fmt"
-)
+import "net/url"
 
-const (
-	INVOICE_RES = "invoices"
-)
+const invoiceURI = "invoices"
 
+// Invoice represents an invoice.
 type Invoice struct {
-	Id            uint32 `json:"id"`
+	ID            int    `json:"id"`
 	Bundle        int    `json:"bundle"`
 	Currency      string `json:"currency"`
 	Vat           int    `json:"vat"`
 	PaymentMethod string `json:"paymentMethod"`
 }
 
+// InvoiceList represents a list of invoices
+// and pagination information.
 type InvoiceList struct {
-	Page      uint32    `json:"page"`
-	Limit     uint8     `json:"limit"`
-	PageCount uint32    `json:"pageCount"`
-	Resources []Invoice `json:"resources"`
+	Page      int        `json:"page"`
+	Limit     int        `json:"limit"`
+	PageCount int        `json:"pageCount"`
+	Resources []*Invoice `json:"resources"`
 }
 
-/*
-Get all user invoices.
+// GetInvoiceList returns all user invoices.
+//
+// The parameter payload includes:
+// - page:	Fetch specified results page.
+// - limit:	How many results on page.
+func (c *Client) GetInvoiceList(p url.Values) (*InvoiceList, error) {
+	var l *InvoiceList
 
-	Parameters:
-
-		Var `data` may contains next keys:
-
-			page:  Fetch specified results page.
-			limit: How many results on page.
-*/
-func (client *TextmagicRestClient) GetInvoiceList(data map[string]string) (*InvoiceList, error) {
-	var invoiceList = new(InvoiceList)
-
-	method := "GET"
-	params := transformGetParams(data)
-
-	uri := fmt.Sprintf("%s/%s", client.BaseUrl(), INVOICE_RES)
-
-	response, err := client.Request(method, uri, params, nil)
-	if err != nil {
-		return invoiceList, err
-	}
-
-	err = json.Unmarshal(response, invoiceList)
-
-	return invoiceList, err
+	return l, c.get(invoiceURI, p, nil, &l)
 }

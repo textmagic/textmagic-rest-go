@@ -1,188 +1,89 @@
 package textmagic
 
 import (
-	"encoding/json"
-	"fmt"
+	"net/url"
+	"strconv"
 )
 
-const (
-	CUSTOM_FIELD_RES = "customfields"
-)
+const customFieldURI = "customfields"
 
+// NewCustomField represents a new custom field.
 type NewCustomField struct {
-	Id   uint32 `json:"id"`
+	ID   int    `json:"id"`
 	Href string `json:"href"`
 }
 
+// CustomField represents a custom field.
 type CustomField struct {
-	Id        uint32 `json:"id"`
+	ID        int    `json:"id"`
 	Name      string `json:"name"`
 	CreatedAt string `json:"createdAt"`
 }
 
+// ContactCustomField represents a contact custom field.
 type ContactCustomField struct {
-	Id        uint32 `json:"id"`
+	ID        int    `json:"id"`
 	Name      string `json:"name"`
 	CreatedAt string `json:"createdAt"`
 	Value     string `json:"value"`
 }
 
+// CustomFieldList represents a custom field list.
 type CustomFieldList struct {
-	Page      uint32        `json:"page"`
-	Limit     uint8         `json:"limit"`
-	PageCount uint32        `json:"pageCount"`
-	Resources []CustomField `json:"resources"`
+	Page      int            `json:"page"`
+	Limit     int            `json:"limit"`
+	PageCount int            `json:"pageCount"`
+	Resources []*CustomField `json:"resources"`
 }
 
-/*
-Get a single custom field.
+// GetCustomField returns a single custom field by ID.
+func (c *Client) GetCustomField(id int) (*CustomField, error) {
+	var f *CustomField
 
-    Parameters:
-
-        id: Custom field id.
-*/
-func (client *TextmagicRestClient) GetCustomField(id uint32) (*CustomField, error) {
-	customField := new(CustomField)
-
-	method := "GET"
-	uri := fmt.Sprintf("%s/%s/%d", client.BaseUrl(), CUSTOM_FIELD_RES, id)
-
-	response, err := client.Request(method, uri, nil, nil)
-	if err != nil {
-		return customField, err
-	}
-
-	err = json.Unmarshal(response, customField)
-
-	return customField, err
+	return f, c.get(customFieldURI+"/"+strconv.Itoa(id), nil, nil, &f)
 }
 
-/*
-Create a new custom field.
+// CreateCustomField creates a new custom field
+// with the given name.
+func (c *Client) CreateCustomField(name string) (*NewCustomField, error) {
+	var f *NewCustomField
 
-    Parameters:
-
-        Var `data` may contain next keys:
-
-            name: Name of custom field. Required.
-*/
-func (client *TextmagicRestClient) CreateCustomField(data map[string]string) (*NewCustomField, error) {
-	customField := new(NewCustomField)
-
-	method := "POST"
-	uri := fmt.Sprintf("%s/%s", client.BaseUrl(), CUSTOM_FIELD_RES)
-
-	params := preparePostParams(data)
-	response, err := client.Request(method, uri, nil, params)
-	if err != nil {
-		return customField, err
-	}
-
-	err = json.Unmarshal(response, customField)
-
-	return customField, err
+	return f, c.post(customFieldURI, nil, url.Values{"name": []string{name}}, &f)
 }
 
-/*
-Get all contact custom fields.
+// GetCustomFieldList returns the custom field list.
+//
+// The parameter payload includes:
+// - page:	Fetch specified results page.
+// - limit:	How many results on page.
+func (c *Client) GetCustomFieldList(p url.Values) (*CustomFieldList, error) {
+	var l *CustomFieldList
 
-    Parameters:
-
-        Var `data` may contain next keys:
-            page:   Fetch specified results page.
-            limit:  How many results on page.
-*/
-func (client *TextmagicRestClient) GetCustomFieldList(data map[string]string) (*CustomFieldList, error) {
-	customFieldList := new(CustomFieldList)
-
-	method := "GET"
-	uri := fmt.Sprintf("%s/%s", client.BaseUrl(), CUSTOM_FIELD_RES)
-
-	params := transformGetParams(data)
-	response, err := client.Request(method, uri, params, nil)
-	if err != nil {
-		return customFieldList, err
-	}
-
-	err = json.Unmarshal(response, customFieldList)
-
-	return customFieldList, err
+	return l, c.get(customFieldURI, p, nil, &l)
 }
 
-/*
-Updates the CustomField for the given unique id.
+// UpdateCustomField updates the given custom field
+// to the provided name value.
+func (c *Client) UpdateCustomField(id int, name string) (*NewCustomField, error) {
+	var f *NewCustomField
 
-    Parameters:
-
-        Var `data` may contain next keys:
-
-            id:   The unique id of the CustomField to update. Required.
-            name: Name of custom field. Required.
-*/
-func (client *TextmagicRestClient) UpdateCustomField(id uint32, data map[string]string) (*NewCustomField, error) {
-	customField := new(NewCustomField)
-
-	method := "PUT"
-	uri := fmt.Sprintf("%s/%s/%d", client.BaseUrl(), CUSTOM_FIELD_RES, id)
-
-	params := preparePostParams(data)
-	response, err := client.Request(method, uri, nil, params)
-	if err != nil {
-		return customField, err
-	}
-
-	err = json.Unmarshal(response, customField)
-
-	return customField, err
+	return f, c.put(customFieldURI+"/"+strconv.Itoa(id), nil, url.Values{"name": []string{name}}, &f)
 }
 
-/*
-Delete the specified CustomField from TextMagic.
-
-    Parameters:
-
-        id: The unique id of the CustomField to delete.
-*/
-func (client *TextmagicRestClient) DeleteCustomField(id uint32) (bool, error) {
-	var success bool
-	method := "DELETE"
-
-	uri := fmt.Sprintf("%s/%s/%d", client.BaseUrl(), CUSTOM_FIELD_RES, id)
-
-	response, err := client.Request(method, uri, nil, nil)
-	if err != nil {
-		return false, err
-	}
-
-	if response[0] == 204 {
-		success = true
-	}
-
-	return success, err
+// DeleteCustomField deletes the custom field
+// with the given ID.
+func (c *Client) DeleteCustomField(id int) error {
+	return c.delete(customFieldURI+"/"+strconv.Itoa(id), nil, nil, nil)
 }
 
-/*
-Updates contact's custom field value.
+// UpdateCustomFieldValue updates the contact's
+// custom field value.
+//
+// The parameter payload includes:
+// - contactId:	The unique id of the Contact to update value. Required.
+// - value:     Value of CustomField. Required.
+func (c *Client) UpdateCustomFieldValue(id int, d url.Values) (*NewContact, error) {
+	var contact *NewContact
 
-    Parameters:
-        Var `data` may contain next keys:
-            id:         The unique id of the CustomField to update a value. Required.
-            contactId:  The unique id of the Contact to update value. Required.
-            value:      Value of CustomField. Required.
-*/
-func (client *TextmagicRestClient) UpdateCustomFieldValue(id uint32, data map[string]string) (*NewContact, error) {
-	contact := new(NewContact)
-
-	method := "PUT"
-	uri := fmt.Sprintf("%s/%s/%d/update", client.BaseUrl(), CUSTOM_FIELD_RES, id)
-
-	params := preparePostParams(data)
-	response, err := client.Request(method, uri, nil, params)
-	if err != nil {
-		return contact, err
-	}
-
-	err = json.Unmarshal(response, contact)
-
-	return contact, err
+	return contact, c.put(customFieldURI+"/"+strconv.Itoa(id)+"/update", nil, d, &contact)
 }

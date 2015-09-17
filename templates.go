@@ -1,167 +1,92 @@
 package textmagic
 
 import (
-	"encoding/json"
-	"fmt"
+	"net/url"
+	"strconv"
 )
 
-const (
-	TEMPLATE_RES = "templates"
-)
+const templateURI = "templates"
 
+// NewTemplate represents a new template.
 type NewTemplate struct {
-	Id   uint32 `json:"id"`
+	ID   int    `json:"id"`
 	Href string `json:"href"`
 }
 
+// Template represents a template.
 type Template struct {
-	Id           uint32 `json:"id"`
+	ID           int    `json:"id"`
 	Name         string `json:"name"`
 	Content      string `json:"content"`
 	LastModified string `json:"lastModified"`
 }
 
+// TemplateList represents a template list.
 type TemplateList struct {
-	Page      uint32     `json:"page"`
-	Limit     uint8      `json:"limit"`
-	PageCount uint32     `json:"pageCount"`
-	Resources []Template `json:"resources"`
+	Page      int         `json:"page"`
+	Limit     int         `json:"limit"`
+	PageCount int         `json:"pageCount"`
+	Resources []*Template `json:"resources"`
 }
 
-/*
-Get a single message template.
+// GetTemplate returns a single message template
+// for the given ID.
+func (c *Client) GetTemplate(id int) (*Template, error) {
+	var t *Template
 
-	Parameters:
-
-		id: Message template id.
-*/
-func (client *TextmagicRestClient) GetTemplate(id uint32) (*Template, error) {
-	template := new(Template)
-
-	method := "GET"
-	uri := fmt.Sprintf("%s/%s/%d", client.BaseUrl(), TEMPLATE_RES, id)
-
-	response, err := client.Request(method, uri, nil, nil)
-	if err != nil {
-		return template, err
-	}
-
-	err = json.Unmarshal(response, template)
-
-	return template, err
+	return t, c.get(templateURI+"/"+strconv.Itoa(id), nil, nil, &t)
 }
 
-/*
-Create a new template.
+// CreateTemplate creates a new template.
+//
+// The data payload includes:
+// - name:		Template name. Required.
+// - content:	Template text. May contain tags inside braces. Required.
+func (c *Client) CreateTemplate(d url.Values) (*NewTemplate, error) {
+	var t *NewTemplate
 
-	Parameters:
-
-		Var `data` may contain next keys:
-
-			name:    Template name. Required.
-			content: Template text. May contain tags inside braces. Required.
-*/
-func (client *TextmagicRestClient) CreateTemplate(data map[string]string) (*NewTemplate, error) {
-	template := new(NewTemplate)
-
-	method := "POST"
-	uri := fmt.Sprintf("%s/%s", client.BaseUrl(), TEMPLATE_RES)
-	params := preparePostParams(data)
-
-	response, err := client.Request(method, uri, nil, params)
-	if err != nil {
-		return template, err
-	}
-
-	err = json.Unmarshal(response, template)
-
-	return template, err
+	return t, c.post(templateURI, nil, d, &t)
 }
 
-/*
-Get all user message templates.
+// GetTemplateList returns all user message templates.
+//
+// The parameter payload includes:
+// - page:	Fetch specified results page.
+// - limit:	How many results on page.
+func (c *Client) GetTemplateList(p url.Values, search bool) (*TemplateList, error) {
+	var l *TemplateList
 
-	Parameters:
-
-		Var `data` may contain next keys:
-
-			page:     Fetch specified results page.
-	        limit:    How many results on page.
-	        name:     Find template by name. Using with `search`=true.
-	        content:  Find template by content. Using with `search`=true.
-
-		search: If true then search templates using `name` and/or `content`.
-
-*/
-func (client *TextmagicRestClient) GetTemplateList(data map[string]string, search bool) (*TemplateList, error) {
-	templateList := new(TemplateList)
-
-	method := "GET"
-	uri := fmt.Sprintf("%s/%s", client.BaseUrl(), TEMPLATE_RES)
-	if search {
-		uri += "/search"
-	}
-	params := transformGetParams(data)
-
-	response, err := client.Request(method, uri, params, nil)
-	if err != nil {
-		return templateList, err
-	}
-
-	err = json.Unmarshal(response, templateList)
-
-	return templateList, err
+	return l, c.get(templateURI, p, nil, &l)
 }
 
-/*
-Updates the Template for the given unique id.
+// SearchTemplateList returns all user message templates
+// for the given search.
+//
+// The parameter payload includes:
+// - page:		Fetch specified results page.
+// - limit:		How many results on page.
+// - name: 		Find template by name.
+// - content:	Find template by content.
+func (c *Client) SearchTemplateList(p url.Values) (*TemplateList, error) {
+	var l *TemplateList
 
-	Parameters:
-
-		id: Unique id of the template to update. Required.
-
-		Var `data` may contain next keys:
-
-			name:    Template name. Required.
-			content: Template text. May contain tags inside braces. Required.
-*/
-func (client *TextmagicRestClient) UpdateTemplate(id uint32, data map[string]string) (*NewTemplate, error) {
-	template := new(NewTemplate)
-
-	method := "PUT"
-	uri := fmt.Sprintf("%s/%s/%d", client.BaseUrl(), TEMPLATE_RES, id)
-	params := preparePostParams(data)
-
-	response, err := client.Request(method, uri, nil, params)
-	if err != nil {
-		return template, err
-	}
-
-	err = json.Unmarshal(response, template)
-
-	return template, err
+	return l, c.get(templateURI+"/search", p, nil, &l)
 }
 
-/*
-Delete the specified Template from TextMagic.
+// UpdateTemplate updates the template with
+// the given ID.
+//
+// The data payload includes:
+// - name:		Template name. Required.
+// - content:	Template text. May contain tags inside braces. Required.
+func (c *Client) UpdateTemplate(id int, d url.Values) (*NewTemplate, error) {
+	var t *NewTemplate
 
-	Parameters:
+	return t, c.put(templateURI+"/"+strconv.Itoa(id), nil, d, &t)
+}
 
-		id: Template id.
-*/
-func (client *TextmagicRestClient) DeleteTemplate(id uint32) (bool, error) {
-	var success bool
-
-	method := "DELETE"
-	uri := fmt.Sprintf("%s/%s/%d", client.BaseUrl(), TEMPLATE_RES, id)
-
-	response, err := client.Request(method, uri, nil, nil)
-	if err != nil {
-		return false, err
-	}
-	if response[0] == 204 {
-		success = true
-	}
-
-	return success, err
+// DeleteTemplate deletes the template with
+// the given ID.
+func (c *Client) DeleteTemplate(id int) error {
+	return c.delete(templateURI+"/"+strconv.Itoa(id), nil, nil, nil)
 }
