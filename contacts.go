@@ -34,10 +34,10 @@ type ContactList struct {
 }
 
 // GetContact returns a single contact by ID.
-func (c *Client) GetContact(id uint32) (*Contact, error) {
+func (c *Client) GetContact(id int) (*Contact, error) {
 	var contact *Contact
 
-	return contact, c.get(contactURI, nil, nil, &contact)
+	return contact, c.get(contactURI+"/"+strconv.Itoa(id), nil, nil, &contact)
 }
 
 // CreateContact creates a new contact with

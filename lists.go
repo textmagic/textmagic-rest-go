@@ -34,7 +34,7 @@ type Lists struct {
 func (c *Client) GetList(id int) (*List, error) {
 	var l *List
 
-	return l, c.get(listURI, nil, nil, &l)
+	return l, c.get(listURI+"/"+strconv.Itoa(id), nil, nil, &l)
 }
 
 // CreateList creates a new list with
@@ -104,13 +104,18 @@ func (c *Client) GetContactsInList(id int, p url.Values) (*ContactList, error) {
 
 // PutContactsIntoList assigns comma separated contacts
 // string to the list with the given ID.
-func (c *Client) PutContactsIntoList(id int, contacts string) (*NewList, error) {
-	var l *NewList
+func (c *Client) PutContactsIntoList(id int, contacts ...int) (*NewList, error) {
+	var (
+		l *NewList
+		d = url.Values{"contacts": []string{joinIntSlice(contacts)}}
+	)
 
-	return l, c.put(listURI+"/"+strconv.Itoa(id)+"/contacts", nil, url.Values{"contacts": []string{contacts}}, &l)
+	return l, c.put(listURI+"/"+strconv.Itoa(id)+"/contacts", nil, d, &l)
 }
 
 // DeleteContactsFromList deletes contacts from the given list.
-func (c *Client) DeleteContactsFromList(id int, contacts string) error {
-	return c.delete(listURI+"/"+strconv.Itoa(id)+"/contacts", nil, url.Values{"contacts": []string{contacts}}, nil)
+func (c *Client) DeleteContactsFromList(id int, contacts ...int) error {
+	d := url.Values{"contacts": []string{joinIntSlice(contacts)}}
+
+	return c.delete(listURI+"/"+strconv.Itoa(id)+"/contacts", nil, d, nil)
 }
