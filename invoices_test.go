@@ -1,23 +1,22 @@
 package textmagic
 
 import (
-	".."
-	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestInvoices(t *testing.T) {
-	username := "xxx"
-	token := "xxx"
-
-	interval := time.Second
-	client := textmagic.NewClient(username, token)
-
 	time.Sleep(interval)
-	// Get Invoice List
 
-	invoices, _ := client.GetInvoiceList(map[string]string{})
+	invoices, err := client.GetInvoiceList(nil)
+
+	if err != nil {
+		t.Fatal(err)
+	} else if len(invoices.Resources) == 0 {
+		return
+	}
 
 	assert.NotEmpty(t, invoices.Page)
 	assert.NotEmpty(t, invoices.Limit)
@@ -25,7 +24,8 @@ func TestInvoices(t *testing.T) {
 	assert.NotEqual(t, 0, len(invoices.Resources))
 
 	inv := invoices.Resources[0]
-	assert.NotEmpty(t, inv.Id)
+
+	assert.NotEmpty(t, inv.ID)
 	assert.NotEmpty(t, inv.Bundle)
 	assert.NotEmpty(t, inv.Currency)
 	assert.NotEmpty(t, inv.PaymentMethod)

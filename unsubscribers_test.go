@@ -1,19 +1,13 @@
 package textmagic
 
 import (
-	".."
-	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestUnsubscribers(t *testing.T) {
-	username := "xxx"
-	token := "xxx"
-
-	interval := time.Second
-	client := textmagic.NewClient(username, token)
-
 	phone := "9993243232"
 
 	time.Sleep(interval)
@@ -22,16 +16,16 @@ func TestUnsubscribers(t *testing.T) {
 	uNew, err := client.UnsubscribePhone(phone)
 
 	assert.Nil(t, err)
-	assert.NotEmpty(t, uNew.Id)
+	assert.NotEmpty(t, uNew.ID)
 	assert.NotEmpty(t, uNew.Href)
 
 	time.Sleep(interval)
 	// Get unsubscriber
 
-	u, err := client.GetUnsubscriber(uNew.Id)
+	u, err := client.GetUnsubscriber(uNew.ID)
 
 	assert.Nil(t, err)
-	assert.NotEmpty(t, u.Id)
+	assert.NotEmpty(t, u.ID)
 	assert.Equal(t, phone, u.Phone)
 	assert.NotEmpty(t, u.UnsubscribeTime)
 	assert.NotEmpty(t, u.FirstName)
@@ -40,7 +34,7 @@ func TestUnsubscribers(t *testing.T) {
 	time.Sleep(interval)
 	// Get unsubscriber list
 
-	list, err := client.GetUnsubscriberList(map[string]string{})
+	list, err := client.GetUnsubscriberList(nil)
 
 	assert.Nil(t, err)
 	assert.NotEmpty(t, list.Page)
