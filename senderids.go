@@ -1,9 +1,6 @@
 package textmagic
 
-import (
-	"net/url"
-	"strconv"
-)
+import "strconv"
 
 const (
 	senderIDURI = "senderids"
@@ -53,7 +50,7 @@ func (c *Client) GetSenderID(id int) (*SenderID, error) {
 // The parameter payload includes:
 // - page:	Fetch specified results page.
 // - limit:	How many results on page.
-func (c *Client) GetSenderIDList(p url.Values) (*SenderIDList, error) {
+func (c *Client) GetSenderIDList(p Params) (*SenderIDList, error) {
 	var l *SenderIDList
 
 	return l, c.get(senderIDURI, p, nil, &l)
@@ -64,7 +61,7 @@ func (c *Client) GetSenderIDList(p url.Values) (*SenderIDList, error) {
 // The data payload includes:
 // - senderId:		Alphanumeric Sender ID (maximum 11 characters). Required.
 // - explanation:	Explain why do you need this Sender ID. Required.
-func (c *Client) CreateSenderID(d url.Values) (*NewSenderID, error) {
+func (c *Client) CreateSenderID(d Params) (*NewSenderID, error) {
 	var s *NewSenderID
 
 	return s, c.post(senderIDURI, nil, d, &s)
@@ -80,7 +77,7 @@ func (c *Client) DeleteSenderID(id int) error {
 //
 // The parameter payload includes:
 // - country:	Return sender settings available in specified country only. Optional.
-func (c *Client) GetSources(p url.Values) (*Sources, error) {
+func (c *Client) GetSources(p Params) (*Sources, error) {
 	var s *Sources
 
 	return s, c.get(sourceURI, p, nil, &s)

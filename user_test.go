@@ -11,11 +11,11 @@ func TestUser(t *testing.T) {
 	time.Sleep(interval)
 	// Get messaging stats
 
-	msgStatData := toURLValues(map[string]string{
+	msgStatData := Params{
 		"by":    "month",
 		"start": "1 year ago",
 		"end":   "now",
-	})
+	}
 	messagingStat, err := client.GetMessagingStat(msgStatData)
 
 	assert.NotEqual(t, 0, len(messagingStat))
@@ -28,9 +28,9 @@ func TestUser(t *testing.T) {
 	time.Sleep(interval)
 	// Get spending stats
 
-	spdgStatData := toURLValues(map[string]string{
+	spdgStatData := Params{
 		"start": "1 year ago",
-	})
+	}
 
 	spdgStat, err := client.GetSpendingStat(spdgStatData)
 
@@ -138,11 +138,11 @@ func TestUser(t *testing.T) {
 	time.Sleep(interval)
 	// Update user info
 
-	updateUserData := toURLValues(map[string]string{
+	updateUserData := Params{
 		"firstName": "GO",
 		"lastName":  "Test",
 		"company":   "go test",
-	})
+	}
 	res, _ := client.UpdateUser(updateUserData)
 
 	assert.NotEmpty(t, res["href"])
@@ -158,11 +158,11 @@ func TestUser(t *testing.T) {
 	time.Sleep(interval)
 	// Update user info
 
-	updateUserData = toURLValues(map[string]string{
+	updateUserData = Params{
 		"firstName": user.FirstName,
 		"lastName":  user.LastName,
 		"company":   user.Company,
-	})
+	}
 	res, _ = client.UpdateUser(updateUserData)
 
 	assert.NotEmpty(t, res["href"])

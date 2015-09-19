@@ -1,7 +1,6 @@
 package textmagic
 
 import (
-	"strconv"
 	"testing"
 	"time"
 
@@ -14,10 +13,10 @@ func TestMessages(t *testing.T) {
 	time.Sleep(interval)
 	// Send message
 
-	data := toURLValues(map[string]string{
+	data := Params{
 		"text":   newMessageText,
 		"phones": "999123345",
-	})
+	}
 
 	m, err := client.CreateMessage(data)
 
@@ -92,10 +91,10 @@ func TestMessages(t *testing.T) {
 	time.Sleep(interval)
 	// Get messages price
 
-	messagePriceData := toURLValues(map[string]string{
+	messagePriceData := Params{
 		"text":   "Go Api Test",
 		"phones": "19025555555",
-	})
+	}
 
 	price, err := client.GetMessagePrice(messagePriceData)
 
@@ -160,11 +159,12 @@ func TestMessages(t *testing.T) {
 
 	time.Sleep(interval)
 
-	scheduledData := toURLValues(map[string]string{
-		"text":        "Scheduled Go Test",
-		"phones":      "99900000",
-		"sendingTime": strconv.Itoa(int(uint32(time.Now().Unix()) + 7200)),
-	})
+	scheduledData := Params{
+		"text":   "Scheduled Go Test",
+		"phones": "99900000",
+	}
+	scheduledData.Set("sendingTime", time.Now().Unix()+7200)
+
 	scheduledNew, err := client.CreateMessage(scheduledData)
 
 	assert.Nil(t, err)

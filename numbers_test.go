@@ -1,8 +1,6 @@
 package textmagic
 
 import (
-	"net/url"
-	"strconv"
 	"testing"
 	"time"
 
@@ -16,11 +14,7 @@ func TestNumbers(t *testing.T) {
 	time.Sleep(interval)
 	// Get available numbers
 
-	available, err := client.GetAvailableNumbers(
-		toURLValues(map[string]string{
-			"country": "US",
-		}),
-	)
+	available, err := client.GetAvailableNumbers(Params{"country": "US"})
 
 	assert.NotEmpty(t, len(available.Numbers))
 	assert.NotEmpty(t, available.Price)
@@ -45,8 +39,7 @@ func TestNumbers(t *testing.T) {
 	var numID int
 
 	if len(numbers.Resources) == 0 {
-		data := url.Values{}
-		data.Set("userId", strconv.Itoa(currentUser.ID))
+		data := NewParams("userId", currentUser.ID)
 		data.Set("country", "US")
 		data.Set("phone", available.Numbers[0])
 

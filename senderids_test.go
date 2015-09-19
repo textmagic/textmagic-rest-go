@@ -14,10 +14,10 @@ func TestSenderids(t *testing.T) {
 
 	// Create sender ID
 
-	senderIDData := toURLValues(map[string]string{
+	senderIDData := Params{
 		"senderID":    "123",
 		"explanation": "need for testing",
-	})
+	}
 	sidNew, err := client.CreateSenderID(senderIDData)
 
 	debug(sidNew, err)

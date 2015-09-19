@@ -80,9 +80,7 @@ func TestCustomFields(t *testing.T) {
 
 	newContactPhone := "999000010"
 	// Find a contact by phone and delete it if exists
-	contactSearchData := toURLValues(map[string]string{
-		"query": newContactPhone,
-	})
+	contactSearchData := Params{"query": newContactPhone}
 	listSearchContact, _ := client.SearchContactList(contactSearchData)
 
 	var cid int
@@ -96,26 +94,24 @@ func TestCustomFields(t *testing.T) {
 
 	time.Sleep(interval)
 
-	newList, _ := client.CreateList(toURLValues(map[string]string{
-		"name": newListName,
-	}))
+	newList, _ := client.CreateList(Params{"name": newListName})
 
 	time.Sleep(interval)
 
-	newContact, _ := client.CreateContact(toURLValues(map[string]string{
+	newContact, _ := client.CreateContact(Params{
 		"lists": strconv.Itoa(newList.ID),
 		"phone": newContactPhone,
-	}))
+	})
 	cid = newContact.ID
 
 	time.Sleep(interval)
 	// Update contact's custom field value.
 
 	updatedValue := "gopher"
-	updateData := toURLValues(map[string]string{
+	updateData := Params{
 		"contactId": strconv.Itoa(cid),
 		"value":     updatedValue,
-	})
+	}
 
 	updatedContact, _ := client.UpdateCustomFieldValue(customField.ID, updateData)
 

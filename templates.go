@@ -1,9 +1,6 @@
 package textmagic
 
-import (
-	"net/url"
-	"strconv"
-)
+import "strconv"
 
 const templateURI = "templates"
 
@@ -42,7 +39,7 @@ func (c *Client) GetTemplate(id int) (*Template, error) {
 // The data payload includes:
 // - name:		Template name. Required.
 // - content:	Template text. May contain tags inside braces. Required.
-func (c *Client) CreateTemplate(d url.Values) (*NewTemplate, error) {
+func (c *Client) CreateTemplate(d Params) (*NewTemplate, error) {
 	var t *NewTemplate
 
 	return t, c.post(templateURI, nil, d, &t)
@@ -53,7 +50,7 @@ func (c *Client) CreateTemplate(d url.Values) (*NewTemplate, error) {
 // The parameter payload includes:
 // - page:	Fetch specified results page.
 // - limit:	How many results on page.
-func (c *Client) GetTemplateList(p url.Values, search bool) (*TemplateList, error) {
+func (c *Client) GetTemplateList(p Params, search bool) (*TemplateList, error) {
 	var l *TemplateList
 
 	return l, c.get(templateURI, p, nil, &l)
@@ -67,7 +64,7 @@ func (c *Client) GetTemplateList(p url.Values, search bool) (*TemplateList, erro
 // - limit:		How many results on page.
 // - name: 		Find template by name.
 // - content:	Find template by content.
-func (c *Client) SearchTemplateList(p url.Values) (*TemplateList, error) {
+func (c *Client) SearchTemplateList(p Params) (*TemplateList, error) {
 	var l *TemplateList
 
 	return l, c.get(templateURI+"/search", p, nil, &l)
@@ -79,7 +76,7 @@ func (c *Client) SearchTemplateList(p url.Values) (*TemplateList, error) {
 // The data payload includes:
 // - name:		Template name. Required.
 // - content:	Template text. May contain tags inside braces. Required.
-func (c *Client) UpdateTemplate(id int, d url.Values) (*NewTemplate, error) {
+func (c *Client) UpdateTemplate(id int, d Params) (*NewTemplate, error) {
 	var t *NewTemplate
 
 	return t, c.put(templateURI+"/"+strconv.Itoa(id), nil, d, &t)

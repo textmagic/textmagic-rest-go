@@ -1,7 +1,5 @@
 package textmagic
 
-import "net/url"
-
 const invoiceURI = "invoices"
 
 // Invoice represents an invoice.
@@ -27,7 +25,7 @@ type InvoiceList struct {
 // The parameter payload includes:
 // - page:	Fetch specified results page.
 // - limit:	How many results on page.
-func (c *Client) GetInvoiceList(p url.Values) (*InvoiceList, error) {
+func (c *Client) GetInvoiceList(p Params) (*InvoiceList, error) {
 	var l *InvoiceList
 
 	return l, c.get(invoiceURI, p, nil, &l)

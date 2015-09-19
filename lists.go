@@ -1,9 +1,6 @@
 package textmagic
 
-import (
-	"net/url"
-	"strconv"
-)
+import "strconv"
 
 const listURI = "lists"
 
@@ -43,7 +40,7 @@ func (c *Client) GetList(id int) (*List, error) {
 // The data payload includes:
 // - description: List description.
 // - shared:      Should this list be shared with sub-accounts. Can be 1 or 0.
-func (c *Client) CreateList(d url.Values) (*NewList, error) {
+func (c *Client) CreateList(d Params) (*NewList, error) {
 	var l *NewList
 
 	return l, c.post(listURI, nil, d, &l)
@@ -54,7 +51,7 @@ func (c *Client) CreateList(d url.Values) (*NewList, error) {
 // The parameter payload includes:
 // - page:	Fetch specified results page.
 // - limit:	How many results on page.
-func (c *Client) GetLists(p url.Values) (*Lists, error) {
+func (c *Client) GetLists(p Params) (*Lists, error) {
 	var l *Lists
 
 	return l, c.get(listURI, p, nil, &l)
@@ -67,7 +64,7 @@ func (c *Client) GetLists(p url.Values) (*Lists, error) {
 // - limit:	How many results on page.
 // - ids:	Find lists by ID(s).
 // - query:	Find lists by specified search query.
-func (c *Client) SearchLists(p url.Values) (*Lists, error) {
+func (c *Client) SearchLists(p Params) (*Lists, error) {
 	var l *Lists
 
 	return l, c.get(listURI+"/search", p, nil, &l)
@@ -79,7 +76,7 @@ func (c *Client) SearchLists(p url.Values) (*Lists, error) {
 // - name:        List name. Required.
 // - description: List description.
 // - shared:      Should this list be shared with sub-accounts. Can be 1 or 0. Default = 0.
-func (c *Client) UpdateList(id int, d url.Values) (*NewList, error) {
+func (c *Client) UpdateList(id int, d Params) (*NewList, error) {
 	var l *NewList
 
 	return l, c.put(listURI+"/"+strconv.Itoa(id), nil, d, &l)
@@ -96,7 +93,7 @@ func (c *Client) DeleteList(id int) error {
 // The parameter payload includes:
 // - page:	Fetch specified results page.
 // - limit:	How many results on page.
-func (c *Client) GetContactsInList(id int, p url.Values) (*ContactList, error) {
+func (c *Client) GetContactsInList(id int, p Params) (*ContactList, error) {
 	var l *ContactList
 
 	return l, c.get(listURI+"/"+strconv.Itoa(id)+"/contacts", p, nil, &l)
@@ -105,17 +102,12 @@ func (c *Client) GetContactsInList(id int, p url.Values) (*ContactList, error) {
 // PutContactsIntoList assigns comma separated contacts
 // string to the list with the given ID.
 func (c *Client) PutContactsIntoList(id int, contacts ...int) (*NewList, error) {
-	var (
-		l *NewList
-		d = url.Values{"contacts": []string{joinIntSlice(contacts)}}
-	)
+	var l *NewList
 
-	return l, c.put(listURI+"/"+strconv.Itoa(id)+"/contacts", nil, d, &l)
+	return l, c.put(listURI+"/"+strconv.Itoa(id)+"/contacts", nil, NewParams("contacts", contacts), &l)
 }
 
 // DeleteContactsFromList deletes contacts from the given list.
 func (c *Client) DeleteContactsFromList(id int, contacts ...int) error {
-	d := url.Values{"contacts": []string{joinIntSlice(contacts)}}
-
-	return c.delete(listURI+"/"+strconv.Itoa(id)+"/contacts", nil, d, nil)
+	return c.delete(listURI+"/"+strconv.Itoa(id)+"/contacts", nil, NewParams("contacts", contacts), nil)
 }

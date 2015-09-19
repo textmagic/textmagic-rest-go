@@ -1,9 +1,6 @@
 package textmagic
 
-import (
-	"net/url"
-	"strconv"
-)
+import "strconv"
 
 const unsubscriberURI = "unsubscribers"
 
@@ -41,7 +38,7 @@ func (c *Client) GetUnsubscriber(id int) (*Unsubscriber, error) {
 func (c *Client) UnsubscribePhone(phone string) (*NewUnsubscriber, error) {
 	var u *NewUnsubscriber
 
-	return u, c.post(unsubscriberURI, nil, url.Values{"phone": []string{phone}}, &u)
+	return u, c.post(unsubscriberURI, nil, NewParams("phone", phone), &u)
 }
 
 // GetUnsubscriberList returns all contacts that
@@ -50,7 +47,7 @@ func (c *Client) UnsubscribePhone(phone string) (*NewUnsubscriber, error) {
 // The parameter payload includes:
 // - page:	Fetch specified results page.
 // - limit:	How many results on page.
-func (c *Client) GetUnsubscriberList(p url.Values) (*UnsubscriberList, error) {
+func (c *Client) GetUnsubscriberList(p Params) (*UnsubscriberList, error) {
 	var l *UnsubscriberList
 
 	return l, c.get(unsubscriberURI, p, nil, &l)

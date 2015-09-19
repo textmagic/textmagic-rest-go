@@ -1,7 +1,6 @@
 package textmagic
 
 import (
-	"net/url"
 	"strconv"
 	"strings"
 	"testing"
@@ -18,8 +17,9 @@ func TestContacts(t *testing.T) {
 
 	time.Sleep(interval)
 
-	params := url.Values{}
-	params.Set("query", strings.ToLower(newListName))
+	params := Params{
+		"query": strings.ToLower(newListName),
+	}
 
 	listList, _ := client.SearchLists(params)
 
@@ -72,12 +72,12 @@ func TestContacts(t *testing.T) {
 	time.Sleep(interval)
 
 	// Create a new contact
-	newContactData := toURLValues(map[string]string{
+	newContactData := Params{
 		"phone":     newContactPhone,
 		"lists":     strconv.Itoa(newList.ID),
 		"firstName": newContactFirstName,
 		"lastName":  newContactLastName,
-	})
+	}
 
 	newContact, err := client.CreateContact(newContactData)
 
@@ -118,12 +118,12 @@ func TestContacts(t *testing.T) {
 	updatedFirstName := "Updated firstname go"
 	updatedLastName := "Updated lastname go"
 
-	updatedContactData := toURLValues(map[string]string{
+	updatedContactData := Params{
 		"phone":     updatedPhone,
 		"firstName": updatedFirstName,
 		"lastName":  updatedLastName,
 		"lists":     strconv.Itoa(newList.ID),
-	})
+	}
 
 	updatedContactNew, err := client.UpdateContact(contact.ID, updatedContactData)
 
@@ -166,11 +166,7 @@ func TestContacts(t *testing.T) {
 
 	// Create a second list
 	secListName := "Sec List Go Test"
-	secNewList, _ := client.CreateList(
-		toURLValues(map[string]string{
-			"name": secListName,
-		}),
-	)
+	secNewList, _ := client.CreateList(Params{"name": secListName})
 
 	time.Sleep(interval)
 

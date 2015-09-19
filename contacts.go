@@ -1,9 +1,6 @@
 package textmagic
 
-import (
-	"net/url"
-	"strconv"
-)
+import "strconv"
 
 const contactURI = "contacts"
 
@@ -51,7 +48,7 @@ func (c *Client) GetContact(id int) (*Contact, error) {
 // - companyName:
 // - country:       2-letter ISO country code.
 // - lists:         String of Lists separated by commas to assign contact. Required.
-func (c *Client) CreateContact(d url.Values) (*NewContact, error) {
+func (c *Client) CreateContact(d Params) (*NewContact, error) {
 	var contact *NewContact
 
 	return contact, c.post(contactURI, nil, d, &contact)
@@ -63,7 +60,7 @@ func (c *Client) CreateContact(d url.Values) (*NewContact, error) {
 // - page:		Fetch specified results page.
 // - limit:     How many results on page.
 // - shared:    Should shared contacts to be included.
-func (c *Client) GetContactList(p url.Values) (*ContactList, error) {
+func (c *Client) GetContactList(p Params) (*ContactList, error) {
 	var l *ContactList
 
 	return l, c.get(contactURI, p, nil, &l)
@@ -79,7 +76,7 @@ func (c *Client) GetContactList(p url.Values) (*ContactList, error) {
 // - ids:       Find contact by ID(s).
 // - listId:    Find contact by List ID.
 // - query:     Find contact by specified search query.
-func (c *Client) SearchContactList(p url.Values) (*ContactList, error) {
+func (c *Client) SearchContactList(p Params) (*ContactList, error) {
 	var l *ContactList
 
 	return l, c.get(contactURI+"/search", p, nil, &l)
@@ -96,7 +93,7 @@ func (c *Client) SearchContactList(p url.Values) (*ContactList, error) {
 // - companyName:
 // - country:		2-letter ISO country code.
 // - lists:         String of Lists separated by commas to assign contact. Required.
-func (c *Client) UpdateContact(id int, d url.Values) (*NewContact, error) {
+func (c *Client) UpdateContact(id int, d Params) (*NewContact, error) {
 	var contact *NewContact
 
 	return contact, c.put(contactURI+"/"+strconv.Itoa(id), nil, d, &contact)
@@ -114,7 +111,7 @@ func (c *Client) DeleteContact(id int) error {
 // The parameter payload includes:
 // - page:	Fetch specified results page.
 // - limit:	How many results on page.
-func (c *Client) GetContactLists(id int, p url.Values) (*Lists, error) {
+func (c *Client) GetContactLists(id int, p Params) (*Lists, error) {
 	var l *Lists
 
 	return l, c.get(contactURI+"/"+strconv.Itoa(id)+"/lists", p, nil, &l)

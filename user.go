@@ -1,9 +1,6 @@
 package textmagic
 
-import (
-	"net/url"
-	"strconv"
-)
+import "strconv"
 
 const (
 	statURI       = "stats"
@@ -97,7 +94,7 @@ type UserList struct {
 // - by:    Group results by specified period: `off`, `day`, `month` or `year`. Default is `off`.
 // - start:	Start date in Unix timestamp format. Default is 7 days ago.
 // - end:	End date in Unix timestamp format. Default is now.
-func (c *Client) GetMessagingStat(p url.Values) ([]*MessagingStat, error) {
+func (c *Client) GetMessagingStat(p Params) ([]*MessagingStat, error) {
 	var l []*MessagingStat
 
 	return l, c.get(statURI+"/messaging", p, nil, &l)
@@ -110,7 +107,7 @@ func (c *Client) GetMessagingStat(p url.Values) ([]*MessagingStat, error) {
 // - limit: How many results on page. Default=10
 // - start: Start date in Unix timestamp format. Default is 7 days ago.
 // - end:   End date in Unix timestamp format. Default is now.
-func (c *Client) GetSpendingStat(p url.Values) (*SpendingStatList, error) {
+func (c *Client) GetSpendingStat(p Params) (*SpendingStatList, error) {
 	var s *SpendingStatList
 
 	return s, c.get(statURI+"/spending", p, nil, &s)
@@ -129,7 +126,7 @@ func (c *Client) GetUser() (*User, error) {
 // - firstName: User first name. Required.
 // - lastName:  User last name. Required.
 // - company:   User company. Required.
-func (c *Client) UpdateUser(d url.Values) (map[string]string, error) {
+func (c *Client) UpdateUser(d Params) (map[string]string, error) {
 	result := make(map[string]string)
 
 	return result, c.put(userURI, nil, d, &result)
@@ -147,7 +144,7 @@ func (c *Client) GetSubaccount(id int) (*User, error) {
 // The parameter payload includes:
 // - page:	Fetch specified results page.
 // - limit:	How many results on page.
-func (c *Client) GetSubaccountList(p url.Values) (*UserList, error) {
+func (c *Client) GetSubaccountList(p Params) (*UserList, error) {
 	var l *UserList
 
 	return l, c.get(subAccountURI, p, nil, &l)
@@ -158,7 +155,7 @@ func (c *Client) GetSubaccountList(p url.Values) (*UserList, error) {
 // The data payload includes:
 // - email: Subaccount email. Required.
 // - role:  Subaccount role: `A` for administrator or `U` for regular user. Required.
-func (c *Client) SendInvite(d url.Values) error {
+func (c *Client) SendInvite(d Params) error {
 	return c.post(subAccountURI, nil, d, nil)
 }
 

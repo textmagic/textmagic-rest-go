@@ -11,10 +11,10 @@ func TestTemplates(t *testing.T) {
 	time.Sleep(interval)
 	// Create template
 
-	newTemplateData := toURLValues(map[string]string{
+	newTemplateData := Params{
 		"name":    "GO TEMPLATE TEST",
 		"content": "GO TEMPLATE CONTENT",
-	})
+	}
 	templateNew, _ := client.CreateTemplate(newTemplateData)
 
 	assert.NotEmpty(t, templateNew.ID)
@@ -42,10 +42,10 @@ func TestTemplates(t *testing.T) {
 	time.Sleep(interval)
 	// Update template
 
-	updatedTemplateData := toURLValues(map[string]string{
+	updatedTemplateData := Params{
 		"name":    "GO TEMPLATE UPD",
 		"content": "GO TEMPLATE CONTENT UPD",
-	})
+	}
 	updatedTemplateNew, _ := client.UpdateTemplate(templateNew.ID, updatedTemplateData)
 
 	assert.NotEmpty(t, updatedTemplateNew.ID)

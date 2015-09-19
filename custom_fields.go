@@ -1,9 +1,6 @@
 package textmagic
 
-import (
-	"net/url"
-	"strconv"
-)
+import "strconv"
 
 const customFieldURI = "customfields"
 
@@ -48,7 +45,7 @@ func (c *Client) GetCustomField(id int) (*CustomField, error) {
 func (c *Client) CreateCustomField(name string) (*NewCustomField, error) {
 	var f *NewCustomField
 
-	return f, c.post(customFieldURI, nil, url.Values{"name": []string{name}}, &f)
+	return f, c.post(customFieldURI, nil, NewParams("name", name), &f)
 }
 
 // GetCustomFieldList returns the custom field list.
@@ -56,7 +53,7 @@ func (c *Client) CreateCustomField(name string) (*NewCustomField, error) {
 // The parameter payload includes:
 // - page:	Fetch specified results page.
 // - limit:	How many results on page.
-func (c *Client) GetCustomFieldList(p url.Values) (*CustomFieldList, error) {
+func (c *Client) GetCustomFieldList(p Params) (*CustomFieldList, error) {
 	var l *CustomFieldList
 
 	return l, c.get(customFieldURI, p, nil, &l)
@@ -67,7 +64,7 @@ func (c *Client) GetCustomFieldList(p url.Values) (*CustomFieldList, error) {
 func (c *Client) UpdateCustomField(id int, name string) (*NewCustomField, error) {
 	var f *NewCustomField
 
-	return f, c.put(customFieldURI+"/"+strconv.Itoa(id), nil, url.Values{"name": []string{name}}, &f)
+	return f, c.put(customFieldURI+"/"+strconv.Itoa(id), nil, NewParams("name", name), &f)
 }
 
 // DeleteCustomField deletes the custom field
@@ -82,7 +79,7 @@ func (c *Client) DeleteCustomField(id int) error {
 // The parameter payload includes:
 // - contactId:	The unique id of the Contact to update value. Required.
 // - value:     Value of CustomField. Required.
-func (c *Client) UpdateCustomFieldValue(id int, d url.Values) (*NewContact, error) {
+func (c *Client) UpdateCustomFieldValue(id int, d Params) (*NewContact, error) {
 	var contact *NewContact
 
 	return contact, c.put(customFieldURI+"/"+strconv.Itoa(id)+"/update", nil, d, &contact)

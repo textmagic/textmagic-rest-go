@@ -1,9 +1,6 @@
 package textmagic
 
-import (
-	"net/url"
-	"strconv"
-)
+import "strconv"
 
 const (
 	messageURI   = "messages"
@@ -186,7 +183,7 @@ type ScheduledList struct {
 // - referenceId:	Custom message reference id which can be used in your application infrastructure.
 // - from:			One of allowed Sender ID (phone number or alphanumeric sender ID).
 // - rrule:			iCal RRULE parameter to create recurrent scheduled messages. When used, sending_time is mandatory as start point of sending.
-func (c *Client) CreateMessage(d url.Values) (*NewMessage, error) {
+func (c *Client) CreateMessage(d Params) (*NewMessage, error) {
 	var m *NewMessage
 
 	return m, c.post(messageURI, nil, d, &m)
@@ -204,7 +201,7 @@ func (c *Client) GetMessage(id int) (*Message, error) {
 // The parameter payload includes:
 // - page:	Fetch specified results page.
 // - limit:	How many results on page.
-func (c *Client) GetMessageList(p url.Values, search bool) (*MessageList, error) {
+func (c *Client) GetMessageList(p Params, search bool) (*MessageList, error) {
 	var l *MessageList
 
 	return l, c.get(messageURI, p, nil, &l)
@@ -219,7 +216,7 @@ func (c *Client) GetMessageList(p url.Values, search bool) (*MessageList, error)
 // - ids:		Find message by ID(s).
 // - sessionId:	Find messages by session ID.
 // - query:		Find messages by specified search query.
-func (c *Client) SearchMessageList(p url.Values) (*MessageList, error) {
+func (c *Client) SearchMessageList(p Params) (*MessageList, error) {
 	var l *MessageList
 
 	return l, c.get(messageURI+"/search", p, nil, &l)
@@ -238,7 +235,7 @@ func (c *Client) GetBulkSession(id int) (*BulkSession, error) {
 // The parameter payload includes:
 // - page:	Fetch specified results page.
 // - limit:	How many results on page.
-func (c *Client) GetBulkSessionList(p url.Values) (*BulkSessionList, error) {
+func (c *Client) GetBulkSessionList(p Params) (*BulkSessionList, error) {
 	var l *BulkSessionList
 
 	return l, c.get(bulkURI, p, nil, &l)
@@ -250,7 +247,7 @@ func (c *Client) GetBulkSessionList(p url.Values) (*BulkSessionList, error) {
 // The parameter payload includes:
 // - page:	Fetch specified results page.
 // - limit:	How many results on page.
-func (c *Client) GetChatMessageList(phone string, p url.Values) (*ChatMessageList, error) {
+func (c *Client) GetChatMessageList(phone string, p Params) (*ChatMessageList, error) {
 	var l *ChatMessageList
 
 	return l, c.get(chatURI, p, nil, &l)
@@ -261,7 +258,7 @@ func (c *Client) GetChatMessageList(phone string, p url.Values) (*ChatMessageLis
 // The parameter payload includes:
 // - page:	Fetch specified results page.
 // - limit:	How many results on page.
-func (c *Client) GetChatList(p url.Values) (*ChatList, error) {
+func (c *Client) GetChatList(p Params) (*ChatList, error) {
 	var l *ChatList
 
 	return l, c.get(chatURI, p, nil, &l)
@@ -282,7 +279,7 @@ func (c *Client) GetChatList(p url.Values) (*ChatList, error) {
 // - referenceId:	Custom message reference id which can be used in your application infrastructure.
 // - from:         	One of allowed Sender ID (phone number or alphanumeric sender ID).
 // - rrule:        	iCal RRULE parameter to create recurrent scheduled messages. When used, sending_time is mandatory as start point of sending.
-func (c *Client) GetMessagePrice(p url.Values) (*MessagePrice, error) {
+func (c *Client) GetMessagePrice(p Params) (*MessagePrice, error) {
 	var m *MessagePrice
 
 	return m, c.get(messageURI+"/price", p, nil, &m)
@@ -305,7 +302,7 @@ func (c *Client) GetReply(id int) (*Reply, error) {
 // The parameter payload includes:
 // - page:	Fetch specified results page.
 // - limit:	How many results on page.
-func (c *Client) GetReplyList(p url.Values, search bool) (*ReplyList, error) {
+func (c *Client) GetReplyList(p Params, search bool) (*ReplyList, error) {
 	var l *ReplyList
 
 	return l, c.get(replyURI, p, nil, &l)
@@ -318,7 +315,7 @@ func (c *Client) GetReplyList(p url.Values, search bool) (*ReplyList, error) {
 // - limit:		How many results on page.
 // - ids:		Find replies by ID(s).
 // - query:		Find replies by specified search query.
-func (c *Client) SearchReplyList(p url.Values) (*ReplyList, error) {
+func (c *Client) SearchReplyList(p Params) (*ReplyList, error) {
 	var l *ReplyList
 
 	return l, c.get(replyURI+"/search", p, nil, &l)
@@ -342,7 +339,7 @@ func (c *Client) GetScheduled(id int) (*Scheduled, error) {
 // The parameter payload includes:
 // - page:	Fetch specified results page.
 // - limit:	How many results on page.
-func (c *Client) GetScheduledList(p url.Values) (*ScheduledList, error) {
+func (c *Client) GetScheduledList(p Params) (*ScheduledList, error) {
 	var l *ScheduledList
 
 	return l, c.get(scheduledURI, p, nil, &l)
@@ -367,7 +364,7 @@ func (c *Client) GetSession(id int) (*Session, error) {
 // The parameter payload includes:
 // - page:	Fetch specified results page.
 // - limit:	How many results on page.
-func (c *Client) GetSessionList(p url.Values) (*SessionList, error) {
+func (c *Client) GetSessionList(p Params) (*SessionList, error) {
 	var l *SessionList
 
 	return l, c.get(sessionURI, p, nil, &l)
@@ -385,7 +382,7 @@ func (c *Client) DeleteSession(id int) error {
 // The parameter payload includes:
 // - page:	Fetch specified results page.
 // - limit:	How many results on page.
-func (c *Client) GetSessionMessages(id int, p url.Values) (*MessageList, error) {
+func (c *Client) GetSessionMessages(id int, p Params) (*MessageList, error) {
 	var l *MessageList
 
 	return l, c.get(sessionURI+"/"+strconv.Itoa(id)+"/messages", p, nil, &l)

@@ -1,9 +1,6 @@
 package textmagic
 
-import (
-	"net/url"
-	"strconv"
-)
+import "strconv"
 
 const numberURI = "numbers"
 
@@ -57,7 +54,7 @@ func (c *Client) GetNumber(id int) (*Number, error) {
 // The parameter payload includes:
 // - page:	Fetch specified results page.
 // - limit:	How many results on page.
-func (c *Client) GetNumberList(p url.Values) (*NumberList, error) {
+func (c *Client) GetNumberList(p Params) (*NumberList, error) {
 	var l *NumberList
 
 	return l, c.get(numberURI, p, nil, &l)
@@ -70,7 +67,7 @@ func (c *Client) GetNumberList(p url.Values) (*NumberList, error) {
 // - phone:   Desired dedicated phone number in international E.164 format. Required.
 // - country: Dedicated number country. Required.
 // - userId:  User ID this number will be assigned to. Required.
-func (c *Client) BuyNumber(d url.Values) (*NewNumber, error) {
+func (c *Client) BuyNumber(d Params) (*NewNumber, error) {
 	var n *NewNumber
 
 	return n, c.post(numberURI, nil, d, &n)
@@ -82,7 +79,7 @@ func (c *Client) BuyNumber(d url.Values) (*NewNumber, error) {
 // The parameter payload includes:
 // - country: Dedicated number country. Required.
 // - prefix:  Desired number prefix. Should include country code (i.e. 447 for GB)
-func (c *Client) GetAvailableNumbers(p url.Values) (*AvailableNumbers, error) {
+func (c *Client) GetAvailableNumbers(p Params) (*AvailableNumbers, error) {
 	var n *AvailableNumbers
 
 	return n, c.get(numberURI+"/available", p, nil, &n)

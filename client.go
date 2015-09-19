@@ -2,6 +2,7 @@ package textmagic
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
@@ -34,17 +35,17 @@ func (c *Client) SetBaseURL(u string) {
 
 // Request makes an API request, automatically decoding
 // the JSON payload for responses returning objects.
-func (c *Client) Request(method, uri string, p, d url.Values, dst interface{}) error {
+func (c *Client) Request(method, uri string, p, d Params, dst interface{}) error {
 	var payload *strings.Reader
 
 	if d != nil {
-		payload = strings.NewReader(d.Encode())
+		payload = strings.NewReader(d.encode())
 	} else {
 		payload = strings.NewReader(emptyData)
 	}
 
 	if p != nil {
-		uri += "?" + p.Encode()
+		uri += "?" + p.encode()
 	}
 
 	req, err := http.NewRequest(method, c.baseURL+"/"+uri, payload)
@@ -92,20 +93,20 @@ func (c *Client) Request(method, uri string, p, d url.Values, dst interface{}) e
 	return json.NewDecoder(resp.Body).Decode(dst)
 }
 
-func (c *Client) get(uri string, params, data url.Values, dst interface{}) error {
-	return c.Request("GET", uri, params, data, dst)
+func (c *Client) get(uri string, p, d Params, dst interface{}) error {
+	return c.Request("GET", uri, p, d, dst)
 }
 
-func (c *Client) post(uri string, params, data url.Values, dst interface{}) error {
-	return c.Request("POST", uri, params, data, dst)
+func (c *Client) post(uri string, p, d Params, dst interface{}) error {
+	return c.Request("POST", uri, p, d, dst)
 }
 
-func (c *Client) put(uri string, params, data url.Values, dst interface{}) error {
-	return c.Request("PUT", uri, params, data, dst)
+func (c *Client) put(uri string, p, d Params, dst interface{}) error {
+	return c.Request("PUT", uri, p, d, dst)
 }
 
-func (c *Client) delete(uri string, params, data url.Values, dst interface{}) error {
-	return c.Request("DELETE", uri, params, data, nil)
+func (c *Client) delete(uri string, p, d Params, dst interface{}) error {
+	return c.Request("DELETE", uri, p, d, nil)
 }
 
 // Ping sends a ping request to the API to test credentials.
@@ -121,4 +122,54 @@ func (c *Client) Ping() error {
 	}
 
 	return nil
+}
+
+// Params represents data payloads
+type Params map[string]string
+
+// NewParams creates and returns a Params struct
+// from the given KVP.
+func NewParams(k string, v interface{}) Params {
+	p := Params{}
+	p.Set(k, v)
+
+	return p
+}
+
+// Set sets the entry for the given key, coercing
+// the value into a string.
+func (p Params) Set(k string, v interface{}) {
+	p[k] = toString(v)
+}
+
+// Del deletes the parameter item with the given key.
+func (p Params) Del(k string) {
+	delete(p, k)
+}
+
+func (p Params) encode() string {
+	u := url.Values{}
+
+	for k, v := range p {
+		u.Set(k, v)
+	}
+
+	return u.Encode()
+}
+
+func toString(v interface{}) string {
+	var s string
+
+	switch c := v.(type) {
+	case string:
+		s = c
+
+	case []int:
+		s = joinIntSlice(c)
+
+	default:
+		s = fmt.Sprintf("%v", s)
+	}
+
+	return s
 }
