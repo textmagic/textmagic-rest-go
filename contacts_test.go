@@ -122,8 +122,9 @@ func TestContacts(t *testing.T) {
 		"phone":     updatedPhone,
 		"firstName": updatedFirstName,
 		"lastName":  updatedLastName,
-		"lists":     strconv.Itoa(newList.ID),
 	}
+
+	updatedContactData.Set("lists", newList.ID)
 
 	updatedContactNew, err := client.UpdateContact(contact.ID, updatedContactData)
 

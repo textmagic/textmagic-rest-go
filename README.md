@@ -1,7 +1,7 @@
 # ![TextMagic](https://www.textmagic.com/wp-content/themes/textmagic-genesis/images/logo/logo.svg)
 
-# Google Go API Client
-This package includes functionality for accessing the the TextMagic REST API.
+# Google Go SMS API Client
+This package includes functionality for accessing the the TextMagic SMS gateway in Go via the REST API.
 
 ## Installation
     go get -u github.com/textmagic/textmagic-rest-go
