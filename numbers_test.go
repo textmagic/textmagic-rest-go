@@ -58,16 +58,12 @@ func TestNumbers(t *testing.T) {
 		numID = numbers.Resources[0].ID
 	}
 
-	debug(numID, err)
-
 	number, err := client.GetNumber(numID)
 
 	assert.Nil(t, err)
 	assert.NotNil(t, numbers)
 
 	time.Sleep(interval)
-
-	debug(numbers, err)
 
 	assert.NotEmpty(t, number.ID)
 	assert.NotEmpty(t, number.PurchasedAt)

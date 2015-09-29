@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"strconv"
 )
 
 func TestMessages(t *testing.T) {
@@ -163,7 +164,7 @@ func TestMessages(t *testing.T) {
 		"text":   "Scheduled Go Test",
 		"phones": "99900000",
 	}
-	scheduledData.Set("sendingTime", time.Now().Unix()+7200)
+	scheduledData.Set("sendingTime", strconv.FormatInt(time.Now().Unix()+7200, 10))
 
 	scheduledNew, err := client.CreateMessage(scheduledData)
 

@@ -15,12 +15,10 @@ func TestSenderids(t *testing.T) {
 	// Create sender ID
 
 	senderIDData := Params{
-		"senderID":    "123",
+		"senderId":    "testapi",
 		"explanation": "need for testing",
 	}
 	sidNew, err := client.CreateSenderID(senderIDData)
-
-	debug(sidNew, err)
 
 	assert.NotEmpty(t, sidNew.ID)
 	assert.NotEmpty(t, sidNew.Href)
@@ -67,7 +65,7 @@ func TestSenderids(t *testing.T) {
 	time.Sleep(interval)
 	// Get Sender IDs List
 
-	senderIDs, _ := client.GetSenderIDList(nil)
+	senderIDs, err := client.GetSenderIDList(nil)
 
 	assert.NotEmpty(t, senderIDs.Page)
 	assert.NotEmpty(t, senderIDs.Limit)

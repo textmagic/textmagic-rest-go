@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 )
 
@@ -163,6 +164,9 @@ func toString(v interface{}) string {
 	switch c := v.(type) {
 	case string:
 		s = c
+
+	case int:
+		s = strconv.Itoa(c)
 
 	case []int:
 		s = joinIntSlice(c)
