@@ -1,136 +1,179 @@
 package textmagic
 
 import (
-	"encoding/binary"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 )
 
-const BASE_URL = "https://rest.textmagic.com/api/v2"
+const baseURL = "https://rest.textmagic.com/api/v2"
 
-type TextmagicRestClient struct {
+var (
+	httpClient = &http.Client{}        // Re-usable HTTP client
+	emptyData  = url.Values{}.Encode() // Cache empty data request
+)
+
+// Client represents a API client.
+type Client struct {
 	username string
 	token    string
-	baseUrl  string
+	baseURL  string
 }
 
-func NewClient(username, token string) *TextmagicRestClient {
-	baseUrl := BASE_URL
-	return &TextmagicRestClient{username, token, baseUrl}
+// NewClient creates returns a client for the given
+// username / token pair.
+func NewClient(username, token string) *Client {
+	return &Client{username, token, baseURL}
 }
 
-func (client *TextmagicRestClient) Username() string {
-	return client.username
+// SetBaseURL sets the API base URL.
+func (c *Client) SetBaseURL(u string) {
+	c.baseURL = u
 }
 
-func (client *TextmagicRestClient) Token() string {
-	return client.token
-}
+// Request makes an API request, automatically decoding
+// the JSON payload for responses returning objects.
+func (c *Client) Request(method, uri string, p, d Params, dst interface{}) error {
+	var payload *strings.Reader
 
-func (client *TextmagicRestClient) BaseUrl() string {
-	return client.baseUrl
-}
-
-func preparePostParams(params map[string]string) url.Values {
-	prepared := url.Values{}
-	for key, value := range params {
-		prepared.Set(key, value)
+	if d != nil {
+		payload = strings.NewReader(d.encode())
+	} else {
+		payload = strings.NewReader(emptyData)
 	}
 
-	return prepared
-}
-
-func transformGetParams(params map[string]string) url.Values {
-	transformedParams := url.Values{}
-	for key, value := range params {
-		transformedParams.Set(key, value)
+	if p != nil {
+		uri += "?" + p.encode()
 	}
 
-	return transformedParams
-}
-
-func (client *TextmagicRestClient) Request(method string, uri string, params url.Values, data url.Values) ([]byte, error) {
-	var requestData = strings.NewReader(url.Values{}.Encode())
-
-	if data != nil {
-		requestData = strings.NewReader(data.Encode())
-	}
-	if params != nil {
-		uri += fmt.Sprintf("?%s", params.Encode())
-	}
-
-	request, err := http.NewRequest(method, uri, requestData)
+	req, err := http.NewRequest(method, c.baseURL+"/"+uri, payload)
 
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	if method == "POST" || method == "PUT" || method == "DELETE" {
-		request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	if method != "GET" && method != "HEAD" {
+		req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	}
 
-	request.Header.Add("Accept-Charset", "utf-8")
-	request.Header.Add("Accept-Language", "en-us")
-
+	req.Header.Add("Accept-Charset", "utf-8")
+	req.Header.Add("Accept-Language", "en-us")
 	// To avoid Header.Add key capitalization.
-	request.Header["X-TM-Username"] = []string{client.Username()}
-	request.Header["X-TM-Key"] = []string{client.Token()}
+	req.Header["X-TM-Username"] = []string{c.username}
+	req.Header["X-TM-Key"] = []string{c.token}
 
-	httpClient := &http.Client{}
-
-	response, err := httpClient.Do(request)
+	resp, err := httpClient.Do(req)
 
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	defer response.Body.Close()
+	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(response.Body)
+	if resp.StatusCode != 200 && resp.StatusCode != 201 && resp.StatusCode != 204 {
+		var e *Error
 
-	if err != nil {
-		return body, err
+		if err = json.NewDecoder(resp.Body).Decode(&e); err != nil {
+			return err
+		}
+
+		return e
+	} else if method == "DELETE" {
+		if resp.StatusCode != 204 {
+			return NewError(resp.StatusCode, "unexpected status code for DELETE")
+		}
+
+		return nil
+	} else if resp.StatusCode == 204 {
+		return nil
 	}
 
-	if response.StatusCode != 200 && response.StatusCode != 201 && response.StatusCode != 204 {
-		textmagicError := new(TextmagicError)
-
-		json.Unmarshal(body, textmagicError)
-
-		return body, textmagicError
-	}
-
-	// Convert response StatusCode to []byte to return
-	if method == "DELETE" || response.StatusCode == 204 {
-		var b = make([]byte, 2)
-		binary.LittleEndian.PutUint16(b, uint16(response.StatusCode))
-
-		return b, err
-	}
-
-	return body, err
+	return json.NewDecoder(resp.Body).Decode(dst)
 }
 
-type PingResp struct {
-	Ping string `json:"ping"`
+func (c *Client) get(uri string, p, d Params, dst interface{}) error {
+	return c.Request("GET", uri, p, d, dst)
 }
 
-func (client *TextmagicRestClient) Ping() (string, error) {
-	var ping string
-	pingResp := new(PingResp)
+func (c *Client) post(uri string, p, d Params, dst interface{}) error {
+	return c.Request("POST", uri, p, d, dst)
+}
 
-	method := "GET"
-	uri := fmt.Sprintf("%s/ping", client.BaseUrl())
-	response, err := client.Request(method, uri, nil, nil)
-	if err != nil {
-		return ping, err
+func (c *Client) put(uri string, p, d Params, dst interface{}) error {
+	return c.Request("PUT", uri, p, d, dst)
+}
+
+func (c *Client) delete(uri string, p, d Params, dst interface{}) error {
+	return c.Request("DELETE", uri, p, d, nil)
+}
+
+// Ping sends a ping request to the API to test credentials.
+func (c *Client) Ping() error {
+	var p *struct {
+		Ping string `json:"ping"`
 	}
 
-	err = json.Unmarshal(response, pingResp)
+	if err := c.get("ping", nil, nil, &p); err != nil {
+		return err
+	} else if p == nil || p.Ping != "pong" {
+		return ErrPing
+	}
 
-	return pingResp.Ping, err
+	return nil
+}
+
+// Params represents data payloads
+type Params map[string]string
+
+// NewParams creates and returns a Params struct
+// from the given KVP.
+func NewParams(k string, v interface{}) Params {
+	p := Params{}
+	p.Set(k, v)
+
+	return p
+}
+
+// Set sets the entry for the given key, coercing
+// the value into a string.
+func (p Params) Set(k string, v interface{}) {
+	p[k] = toString(v)
+}
+
+// Del deletes the parameter item with the given key.
+func (p Params) Del(k string) {
+	delete(p, k)
+}
+
+func (p Params) encode() string {
+	u := url.Values{}
+
+	for k, v := range p {
+		u.Set(k, v)
+	}
+
+	return u.Encode()
+}
+
+func toString(v interface{}) string {
+	var s string
+
+	switch c := v.(type) {
+	case string:
+		s = c
+
+	case int:
+		s = strconv.Itoa(c)
+
+	case []int:
+		s = joinIntSlice(c)
+
+	default:
+		s = fmt.Sprintf("%v", s)
+	}
+
+	return s
 }

@@ -1,106 +1,54 @@
 package textmagic
 
-import (
-	"encoding/json"
-	"fmt"
-)
+import "strconv"
 
-const (
-	UNSUBSCRIBER_RES = "unsubscribers"
-)
+const unsubscriberURI = "unsubscribers"
 
+// NewUnsubscriber represents a new unsubscriber.
 type NewUnsubscriber struct {
-	Id   uint32 `json:"id"`
+	ID   int    `json:"id"`
 	Href string `json:"href"`
 }
 
+// Unsubscriber represents a unsubscriber.
 type Unsubscriber struct {
-	Id              uint32 `json:"id"`
+	ID              int    `json:"id"`
 	Phone           string `json:"phone"`
 	UnsubscribeTime string `json:"unsubscribeTime"`
 	FirstName       string `json:"firstName"`
 	LastName        string `json:"lastName"`
 }
 
+// UnsubscriberList represents a unsubscriber list.
 type UnsubscriberList struct {
-	Page      uint32         `json:"page"`
-	Limit     uint8          `json:"limit"`
-	PageCount uint32         `json:"pageCount"`
-	Resources []Unsubscriber `json:"resources"`
+	Page      int             `json:"page"`
+	Limit     int             `json:"limit"`
+	PageCount int             `json:"pageCount"`
+	Resources []*Unsubscriber `json:"resources"`
 }
 
-/*
-Get a single unsubscribed contact.
+// GetUnsubscriber returns an unsubscribed contact by ID.
+func (c *Client) GetUnsubscriber(id int) (*Unsubscriber, error) {
+	var u *Unsubscriber
 
-    Parameters:
-
-        id: Unsubscribed contact id.
-*/
-func (client *TextmagicRestClient) GetUnsubscriber(id uint32) (*Unsubscriber, error) {
-	unsubscriber := new(Unsubscriber)
-
-	method := "GET"
-	uri := fmt.Sprintf("%s/%s/%d", client.BaseUrl(), UNSUBSCRIBER_RES, id)
-
-	response, err := client.Request(method, uri, nil, nil)
-	if err != nil {
-		return unsubscriber, err
-	}
-
-	err = json.Unmarshal(response, unsubscriber)
-
-	return unsubscriber, err
+	return u, c.get(unsubscriberURI+"/"+strconv.Itoa(id), nil, nil, &u)
 }
 
-/*
-Unsubscribe contact from your communication by phone number.
+// UnsubscribePhone unsubscribes a contact by phone number.
+func (c *Client) UnsubscribePhone(phone string) (*NewUnsubscriber, error) {
+	var u *NewUnsubscriber
 
-    Parameters:
-
-        phone: Contact phone number you want to unsubscribe. Required.
-*/
-func (client *TextmagicRestClient) UnsubscribePhone(phone string) (*NewUnsubscriber, error) {
-	unsubscriber := new(NewUnsubscriber)
-
-	method := "POST"
-	uri := fmt.Sprintf("%s/%s", client.BaseUrl(), UNSUBSCRIBER_RES)
-
-	data := map[string]string{"phone": phone}
-	params := preparePostParams(data)
-
-	response, err := client.Request(method, uri, nil, params)
-	if err != nil {
-		return unsubscriber, err
-	}
-
-	err = json.Unmarshal(response, unsubscriber)
-
-	return unsubscriber, err
+	return u, c.post(unsubscriberURI, nil, NewParams("phone", phone), &u)
 }
 
-/*
-Get all contact have unsubscribed from your communication.
+// GetUnsubscriberList returns all contacts that
+// have unsubscribed from your communication.
+//
+// The parameter payload includes:
+// - page:	Fetch specified results page.
+// - limit:	How many results on page.
+func (c *Client) GetUnsubscriberList(p Params) (*UnsubscriberList, error) {
+	var l *UnsubscriberList
 
-Parameters:
-
-    Var `data` may contain next keys:
-
-        page:  Fetch specified results page.
-        limit: How many results on page.
-*/
-func (client *TextmagicRestClient) GetUnsubscriberList(data map[string]string) (*UnsubscriberList, error) {
-	unsubscriberList := new(UnsubscriberList)
-
-	method := "GET"
-	uri := fmt.Sprintf("%s/%s", client.BaseUrl(), UNSUBSCRIBER_RES)
-
-	params := transformGetParams(data)
-	response, err := client.Request(method, uri, params, nil)
-	if err != nil {
-		return unsubscriberList, err
-	}
-
-	err = json.Unmarshal(response, unsubscriberList)
-
-	return unsubscriberList, err
+	return l, c.get(unsubscriberURI, p, nil, &l)
 }

@@ -1,298 +1,165 @@
 package textmagic
 
-import (
-	"encoding/json"
-	"fmt"
-)
+import "strconv"
 
 const (
-	STAT_RES       = "stats"
-	TOKEN_RES      = "tokens"
-	USER_RES       = "user"
-	SUBACCOUNT_RES = "subaccounts"
+	statURI       = "stats"
+	tokenURI      = "tokens"
+	userURI       = "user"
+	subAccountURI = "subaccounts"
 )
 
+// MessagingStat represents messaging statistics.
 type MessagingStat struct {
-	ReplyRate             float32 `json:"replyRate"`
+	ReplyRate             float64 `json:"replyRate"`
 	Date                  string  `json:"date"`
-	DeliveryRate          float32 `json:"deliveryRate"`
-	Costs                 float32 `json:"costs"`
-	MessagesReceived      uint32  `json:"messagesReceived"`
-	MessagesSentDelivered uint32  `json:"messagesSentDelivered"`
-	MessagesSentAccepted  uint32  `json:"messagesSentAccepted"`
-	MessagesSentBuffered  uint32  `json:"messagesSentBuffered"`
-	MessagesSentFailed    uint32  `json:"messagesSentFailed"`
-	MessagesSentRejected  uint32  `json:"messagesSentRejected"`
-	MessagesSentParts     uint32  `json:"messagesSentParts"`
+	DeliveryRate          float64 `json:"deliveryRate"`
+	Costs                 float64 `json:"costs"`
+	MessagesReceived      int     `json:"messagesReceived"`
+	MessagesSentDelivered int     `json:"messagesSentDelivered"`
+	MessagesSentAccepted  int     `json:"messagesSentAccepted"`
+	MessagesSentBuffered  int     `json:"messagesSentBuffered"`
+	MessagesSentFailed    int     `json:"messagesSentFailed"`
+	MessagesSentRejected  int     `json:"messagesSentRejected"`
+	MessagesSentParts     int     `json:"messagesSentParts"`
 }
 
-type MessagingStatList []MessagingStat
-
+// SpendingStat represents spending statistics.
 type SpendingStat struct {
-	Id      uint32  `json:"id"`
-	UserId  uint32  `json:"userId"`
+	ID      int     `json:"id"`
+	UserID  int     `json:"userId"`
 	Date    string  `json:"date"`
-	Balance float32 `json:"balance"`
-	Delta   float32 `json:"delta"`
+	Balance float64 `json:"balance"`
+	Delta   float64 `json:"delta"`
 	Type    string  `json:"type"`
 	Value   string  `json:"value"`
 	Comment string  `json:"comment"`
 }
 
+// SpendingStatList represents a spending statistics list.
 type SpendingStatList struct {
-	Page      uint32         `json:"page"`
-	Limit     uint8          `json:"limit"`
-	PageCount uint32         `json:"pageCount"`
-	Resources []SpendingStat `json:"resources"`
+	Page      int             `json:"page"`
+	Limit     int             `json:"limit"`
+	PageCount int             `json:"pageCount"`
+	Resources []*SpendingStat `json:"resources"`
 }
 
-type TimezoneList map[string]string
-
+// NewToken represents a new token.
 type NewToken struct {
 	Username string `json:"username"`
 	Token    string `json:"token"`
 	Expires  string `json:"string"`
 }
 
+// Currency represents a currency
 type Currency struct {
-	Id         string `json:"id"`
-	HtmlSymbol string `json:"htmlSymbol"`
+	ID         string `json:"id"`
+	HTMLSymbol string `json:"htmlSymbol"`
 }
 
+// Timezone represents a timezone.
 type Timezone struct {
-	Id       uint32 `json:"id"`
+	ID       int    `json:"id"`
 	Area     string `json:"area"`
-	Dst      uint8  `json:"dst"`
+	Dst      int    `json:"dst"`
 	Offset   int    `json:"offset"`
 	Timezone string `json:"timezone"`
 }
 
+// User represents a user.
 type User struct {
-	Id             uint32   `json:"id"`
-	Username       string   `json:"username"`
-	FirstName      string   `json:"firstName"`
-	LastName       string   `json:"lastName"`
-	Status         string   `json:"status"`
-	Balance        float32  `json:"balance"`
-	Company        string   `json:"company"`
-	Currency       Currency `json:"currency"`
-	Timezone       Timezone `json:"timezone"`
-	SubaccountType string   `json:"subaccountType"`
+	ID             int       `json:"id"`
+	Username       string    `json:"username"`
+	FirstName      string    `json:"firstName"`
+	LastName       string    `json:"lastName"`
+	Status         string    `json:"status"`
+	Balance        float64   `json:"balance"`
+	Company        string    `json:"company"`
+	Currency       *Currency `json:"currency"`
+	Timezone       *Timezone `json:"timezone"`
+	SubaccountType string    `json:"subaccountType"`
 }
 
+// UserList represents a user list.
 type UserList struct {
-	Page      uint32 `json:"page"`
-	Limit     uint8  `json:"limit"`
-	PageCount uint32 `json:"pageCount"`
-	Resources []User `json:"resources"`
+	Page      int     `json:"page"`
+	Limit     int     `json:"limit"`
+	PageCount int     `json:"pageCount"`
+	Resources []*User `json:"resources"`
 }
 
-/*
-Return messaging statistics.
+// GetMessagingStat returns messaging statistics.
+//
+// The parameter payload includes:
+// - by:    Group results by specified period: `off`, `day`, `month` or `year`. Default is `off`.
+// - start:	Start date in Unix timestamp format. Default is 7 days ago.
+// - end:	End date in Unix timestamp format. Default is now.
+func (c *Client) GetMessagingStat(p Params) ([]*MessagingStat, error) {
+	var l []*MessagingStat
 
-	Parameters:
-
-		Var `data` may contain next keys:
-
-			by:    Group results by specified period: `off`, `day`, `month` or `year`. Default is `off`.
-			start: Start date in unix timestamp format. Default is 7 days ago.
-			end:   End date in unix timestamp format. Default is now.
-*/
-func (client *TextmagicRestClient) GetMessagingStat(data map[string]string) ([]MessagingStat, error) {
-	stat := make([]MessagingStat, 0)
-
-	method := "GET"
-	uri := fmt.Sprintf("%s/%s/messaging", client.BaseUrl(), STAT_RES)
-	params := transformGetParams(data)
-
-	response, err := client.Request(method, uri, params, nil)
-	if err != nil {
-		return stat, err
-	}
-	err = json.Unmarshal(response, &stat)
-
-	return stat, err
+	return l, c.get(statURI+"/messaging", p, nil, &l)
 }
 
-/*
-Return account spending statistics.
+// GetSpendingStat returns account spending statistics.
+//
+// The parameter payload includes:
+// - page:  Fetch specified results page. Default=1
+// - limit: How many results on page. Default=10
+// - start: Start date in Unix timestamp format. Default is 7 days ago.
+// - end:   End date in Unix timestamp format. Default is now.
+func (c *Client) GetSpendingStat(p Params) (*SpendingStatList, error) {
+	var s *SpendingStatList
 
-	Parameters:
-
-		Var `data` may contain next keys:
-
-			page:  Fetch specified results page. Default=1
-	        limit: How many results on page. Default=10
-	        start: Start date in unix timestamp format. Default is 7 days ago.
-	        end:   End date in unix timestamp format. Default is now.
-*/
-func (client *TextmagicRestClient) GetSpendingStat(data map[string]string) (*SpendingStatList, error) {
-	stat := new(SpendingStatList)
-
-	method := "GET"
-	uri := fmt.Sprintf("%s/%s/spending", client.BaseUrl(), STAT_RES)
-
-	params := transformGetParams(data)
-	response, err := client.Request(method, uri, params, nil)
-	if err != nil {
-		return stat, err
-	}
-
-	err = json.Unmarshal(response, stat)
-
-	return stat, err
+	return s, c.get(statURI+"/spending", p, nil, &s)
 }
 
-/*
-Get current user info.
-*/
-func (client *TextmagicRestClient) GetUser() (*User, error) {
-	user := new(User)
+// GetUser returns the current user.
+func (c *Client) GetUser() (*User, error) {
+	var u *User
 
-	method := "GET"
-	uri := fmt.Sprintf("%s/%s", client.BaseUrl(), USER_RES)
-
-	response, err := client.Request(method, uri, nil, nil)
-	if err != nil {
-		return user, err
-	}
-
-	err = json.Unmarshal(response, user)
-
-	return user, err
+	return u, c.get(userURI, nil, nil, &u)
 }
 
-/*
-Update an current User via a PUT request.
-
-	Parameters:
-
-		Var `data` may contain next keys:
-
-			firstName: User first name. Required.
-			lastName:  User last name. Required.
-			company:   User company. Required.
-*/
-func (client *TextmagicRestClient) UpdateUser(data map[string]string) (map[string]string, error) {
+// UpdateUser updates the current user.
+//
+// The data payload includes:
+// - firstName: User first name. Required.
+// - lastName:  User last name. Required.
+// - company:   User company. Required.
+func (c *Client) UpdateUser(d Params) (map[string]string, error) {
 	result := make(map[string]string)
 
-	method := "PUT"
-	uri := fmt.Sprintf("%s/%s", client.BaseUrl(), USER_RES)
-	params := preparePostParams(data)
-
-	response, err := client.Request(method, uri, nil, params)
-	if err != nil {
-		return result, err
-	}
-
-	err = json.Unmarshal(response, &result)
-
-	return result, err
+	return result, c.put(userURI, nil, d, &result)
 }
 
-/*
-Get all subaccounts.
+// GetSubaccount gets a subaccount by the given ID.
+func (c *Client) GetSubaccount(id int) (*User, error) {
+	var u *User
 
-	Parameters:
-
-		id: Subaccount id.
-*/
-func (client *TextmagicRestClient) GetSubaccount(id uint32) (*User, error) {
-	var subaccount = new(User)
-
-	method := "GET"
-
-	uri := fmt.Sprintf("%s/%s/%d", client.BaseUrl(), SUBACCOUNT_RES, id)
-
-	response, err := client.Request(method, uri, nil, nil)
-	if err != nil {
-		return subaccount, err
-	}
-
-	err = json.Unmarshal(response, subaccount)
-
-	return subaccount, err
+	return u, c.get(subAccountURI+"/"+strconv.Itoa(id), nil, nil, &u)
 }
 
-/*
-Get all user subaccounts.
+// GetSubaccountList returns all user subaccounts.
+//
+// The parameter payload includes:
+// - page:	Fetch specified results page.
+// - limit:	How many results on page.
+func (c *Client) GetSubaccountList(p Params) (*UserList, error) {
+	var l *UserList
 
-	Parameters:
-
-		Var `data` may contain next keys:
-
-			page:  Fetch specified results page.
-        	limit: How many results on page.
-*/
-func (client *TextmagicRestClient) GetSubaccountList(data map[string]string) (*UserList, error) {
-	var subaccountList = new(UserList)
-
-	method := "GET"
-	params := transformGetParams(data)
-
-	uri := fmt.Sprintf("%s/%s", client.BaseUrl(), SUBACCOUNT_RES)
-
-	response, err := client.Request(method, uri, params, nil)
-	if err != nil {
-		return subaccountList, err
-	}
-
-	err = json.Unmarshal(response, subaccountList)
-
-	return subaccountList, err
+	return l, c.get(subAccountURI, p, nil, &l)
 }
 
-/*
-Invite new subaccount.
-
-	Parameters:
-
-		Var `data` may contain next keys:
-
-			email: Subaccount email. Required.
-        	role:  Subaccount role: `A` for administrator or `U` for regular user. Required.
-*/
-func (client *TextmagicRestClient) SendInvite(data map[string]string) (bool, error) {
-	var success bool
-
-	method := "POST"
-
-	params := preparePostParams(data)
-
-	uri := fmt.Sprintf("%s/%s", client.BaseUrl(), SUBACCOUNT_RES)
-
-	response, err := client.Request(method, uri, nil, params)
-	if err != nil {
-		return false, err
-	}
-
-	if response[0] == 204 {
-		success = true
-	}
-
-	return success, err
+// SendInvite sends an invite for a new subaccount.
+//
+// The data payload includes:
+// - email: Subaccount email. Required.
+// - role:  Subaccount role: `A` for administrator or `U` for regular user. Required.
+func (c *Client) SendInvite(d Params) error {
+	return c.post(subAccountURI, nil, d, nil)
 }
 
-/*
-Close subaccount.
-
-	Parameters:
-
-		id: The unique id of the Subaccount to close.
-*/
-func (client *TextmagicRestClient) CloseSubaccount(id uint32) (bool, error) {
-	var success bool
-
-	method := "DELETE"
-	uri := fmt.Sprintf("%s/%s/%d", client.BaseUrl(), SUBACCOUNT_RES, id)
-
-	response, err := client.Request(method, uri, nil, nil)
-	if err != nil {
-		return false, err
-	}
-	if response[0] == 204 {
-		success = true
-	}
-
-	return success, err
+// CloseSubaccount closes the subaccount for the given ID.
+func (c *Client) CloseSubaccount(id int) error {
+	return c.delete(subAccountURI+"/"+strconv.Itoa(id), nil, nil, nil)
 }

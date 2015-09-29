@@ -1,21 +1,15 @@
 package textmagic
 
 import (
-	".."
-	"github.com/stretchr/testify/assert"
 	"strconv"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestContacts(t *testing.T) {
-	username := "xxx"
-	token := "xxx"
-
-	interval := time.Second
-	client := textmagic.NewClient(username, token)
-
 	newListName := "New List Go Test"
 	newContactPhone := "999000010"
 	newContactFirstName := "Golang"
@@ -23,47 +17,43 @@ func TestContacts(t *testing.T) {
 
 	time.Sleep(interval)
 
-	// Find a list by name and delete it if exists
-	listSearchData := map[string]string{
+	params := Params{
 		"query": strings.ToLower(newListName),
 	}
-	listList, _ := client.GetListList(listSearchData, true)
-	if len(listList.Resources) > 0 {
+
+	listList, _ := client.SearchLists(params)
+
+	if listList != nil && len(listList.Resources) > 0 {
 		time.Sleep(interval)
-		client.DeleteList(listList.Resources[0].Id)
+		client.DeleteList(listList.Resources[0].ID)
 	}
 
 	time.Sleep(interval)
 
-	// Find a contact by phone and delete it if exists
-	contactSearchData := map[string]string{
-		"query": newContactPhone,
-	}
-	listSearchContact, _ := client.GetContactList(contactSearchData, true)
-	if len(listSearchContact.Resources) > 0 {
+	params.Set("query", newContactPhone)
+	listSearchContact, err := client.SearchContactList(params)
+
+	if listSearchContact != nil && len(listSearchContact.Resources) > 0 {
 		time.Sleep(interval)
-		client.DeleteContact(listSearchContact.Resources[0].Id)
+		client.DeleteContact(listSearchContact.Resources[0].ID)
 	}
 
 	time.Sleep(interval)
 
-	// Create a new List to assign contact
-	newListData := map[string]string{
-		"name": newListName,
-	}
+	params.Del("query")
+	params.Set("name", newListName)
 
-	newList, _ := client.CreateList(newListData)
+	newList, err := client.CreateList(params)
 
-	assert.NotEmpty(t, newList.Id)
+	assert.NotEmpty(t, newList.ID)
 	assert.NotEmpty(t, newList.Href)
 
 	time.Sleep(interval)
 
-	// Find a list by name
-	listSearchData2 := map[string]string{
-		"query": strings.ToLower(newListName),
-	}
-	listList2, _ := client.GetListList(listSearchData2, true)
+	params.Del("name")
+	params.Set("query", strings.ToLower(newListName))
+
+	listList2, err := client.SearchLists(params)
 
 	assert.Equal(t, 1, len(listList2.Resources))
 	assert.Equal(t, newListName, listList2.Resources[0].Name)
@@ -71,51 +61,47 @@ func TestContacts(t *testing.T) {
 	time.Sleep(interval)
 
 	// Update a list name
-	updatedListName := "updated go api test"
-	updatedList, _ := client.UpdateList(
-		listList2.Resources[0].Id,
-		map[string]string{
-			"name": updatedListName,
-		},
-	)
+	params.Del("query")
+	params.Set("name", "updated go api test")
 
-	assert.NotEmpty(t, updatedList.Id)
+	updatedList, _ := client.UpdateList(listList2.Resources[0].ID, params)
+
+	assert.NotEmpty(t, updatedList.ID)
 	assert.NotEmpty(t, updatedList.Href)
 
 	time.Sleep(interval)
 
 	// Create a new contact
-	newContactData := map[string]string{
+	newContactData := Params{
 		"phone":     newContactPhone,
-		"lists":     strconv.Itoa(int(newList.Id)),
+		"lists":     strconv.Itoa(newList.ID),
 		"firstName": newContactFirstName,
 		"lastName":  newContactLastName,
 	}
 
-	newContact, _ := client.CreateContact(newContactData)
+	newContact, err := client.CreateContact(newContactData)
 
-	assert.NotEmpty(t, newContact.Id)
+	assert.NotEmpty(t, newContact.ID)
 	assert.NotEmpty(t, newContact.Href)
 
 	time.Sleep(interval)
 
 	// Get contact list
 
-	listContact, _ := client.GetContactList(map[string]string{}, false)
+	listContact, err := client.GetContactList(nil)
 
 	assert.NotEmpty(t, listContact.Page)
 	assert.NotEmpty(t, listContact.Limit)
 	assert.NotEmpty(t, listContact.PageCount)
 	assert.NotEqual(t, len(listContact.Resources), 0)
-	assert.NotEmpty(t, listContact.Resources[0].Id)
+	assert.NotEmpty(t, listContact.Resources[0].ID)
 
 	time.Sleep(interval)
 
 	// Get a contact by id
 
-	contact, _ := client.GetContact(newContact.Id)
-
-	assert.NotEmpty(t, contact.Id)
+	contact, _ := client.GetContact(newContact.ID)
+	assert.NotEmpty(t, contact.ID)
 	assert.NotEmpty(t, contact.Phone)
 	assert.NotEmpty(t, contact.FirstName)
 	assert.NotEmpty(t, contact.LastName)
@@ -128,29 +114,30 @@ func TestContacts(t *testing.T) {
 
 	// Update a contact
 
-	updatedPhone := "9990000321"
+	updatedPhone := "999000" + strconv.Itoa(random(1000, 9999))
 	updatedFirstName := "Updated firstname go"
 	updatedLastName := "Updated lastname go"
 
-	updatedContactData := map[string]string{
+	updatedContactData := Params{
 		"phone":     updatedPhone,
 		"firstName": updatedFirstName,
 		"lastName":  updatedLastName,
-		"lists":     strconv.Itoa(int(newList.Id)),
 	}
 
-	updatedContactNew, _ := client.UpdateContact(contact.Id, updatedContactData)
+	updatedContactData.Set("lists", newList.ID)
 
-	assert.NotEmpty(t, updatedContactNew.Id)
+	updatedContactNew, err := client.UpdateContact(contact.ID, updatedContactData)
+
+	assert.NotEmpty(t, updatedContactNew.ID)
 	assert.NotEmpty(t, updatedContactNew.Href)
 
 	time.Sleep(interval)
 
 	// Get an updated contact
 
-	updatedContact, _ := client.GetContact(updatedContactNew.Id)
+	updatedContact, err := client.GetContact(updatedContactNew.ID)
 
-	assert.NotEmpty(t, updatedContact.Id)
+	assert.NotEmpty(t, updatedContact.ID)
 	assert.NotEmpty(t, updatedContact.Phone)
 	assert.NotEmpty(t, updatedContact.FirstName)
 	assert.NotEmpty(t, updatedContact.LastName)
@@ -163,7 +150,7 @@ func TestContacts(t *testing.T) {
 
 	// Get lists which contact belongs to
 
-	lists, _ := client.GetContactLists(newContact.Id, map[string]string{})
+	lists, err := client.GetContactLists(newContact.ID, nil)
 
 	assert.NotEmpty(t, lists.Page)
 	assert.NotEmpty(t, lists.Limit)
@@ -172,53 +159,51 @@ func TestContacts(t *testing.T) {
 
 	list := lists.Resources[0]
 
-	assert.Equal(t, list.Id, newList.Id)
-	assert.Equal(t, list.MembersCount, uint32(1))
+	assert.Equal(t, list.ID, newList.ID)
+	assert.Equal(t, list.MembersCount, 1)
 	assert.Equal(t, list.Shared, false)
 
 	time.Sleep(interval)
 
 	// Create a second list
 	secListName := "Sec List Go Test"
-	secNewList, _ := client.CreateList(
-		map[string]string{
-			"name": secListName,
-		},
-	)
+	secNewList, _ := client.CreateList(Params{"name": secListName})
 
 	time.Sleep(interval)
 
 	// Assign contacts to the specified list
 
-	updatedList2, _ := client.PutContactsIntoList(secNewList.Id, strconv.Itoa(int(updatedContactNew.Id)))
+	updatedList2, err := client.PutContactsIntoList(secNewList.ID, updatedContactNew.ID)
 
-	assert.NotEmpty(t, updatedList2.Id)
+	assert.NotEmpty(t, updatedList2.ID)
 	assert.NotEmpty(t, updatedList2.Href)
+
+	//debug(updatedList2.Href, err, updatedList2.ID)
 
 	time.Sleep(interval)
 
 	// Get members count of second list
 
-	secList, _ := client.GetList(secNewList.Id)
+	secList, err := client.GetList(updatedList2.ID)
 
-	assert.Equal(t, uint32(1), secList.MembersCount)
+	assert.Equal(t, 1, secList.MembersCount)
 
 	time.Sleep(interval)
 
 	// Fetch user contacts by given list id
 
-	listContact2, _ := client.GetContactsInList(list.Id, map[string]string{})
+	listContact2, err := client.GetContactsInList(list.ID, nil)
 
 	assert.NotEmpty(t, listContact2.Page)
 	assert.NotEmpty(t, listContact2.Limit)
 	assert.NotEmpty(t, listContact2.PageCount)
 	assert.Equal(t, len(listContact2.Resources), 1)
-	assert.NotEmpty(t, listContact2.Resources[0].Id)
+	assert.NotEmpty(t, listContact2.Resources[0].ID)
 
 	time.Sleep(interval)
 
 	// Find list by id
-	l, _ := client.GetList(newList.Id)
+	l, err := client.GetList(newList.ID)
 
 	assert.Equal(t, list.Name, l.Name)
 	assert.Equal(t, list.MembersCount, l.MembersCount)
@@ -227,18 +212,18 @@ func TestContacts(t *testing.T) {
 
 	// Delete a contact
 
-	r, _ := client.DeleteContact(updatedContact.Id)
-	assert.True(t, r)
+	err = client.DeleteContact(updatedContact.ID)
+	assert.Nil(t, err)
 
 	time.Sleep(interval)
 
 	// Delete a lists
 
-	r, _ = client.DeleteList(newList.Id)
-	assert.True(t, r)
+	err = client.DeleteList(newList.ID)
+	assert.Nil(t, err)
 
 	time.Sleep(interval)
 
-	r, _ = client.DeleteList(secList.Id)
-	assert.True(t, r)
+	err = client.DeleteList(secList.ID)
+	assert.Nil(t, err)
 }

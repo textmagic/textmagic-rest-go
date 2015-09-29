@@ -1,176 +1,92 @@
 package textmagic
 
-import (
-	"encoding/json"
-	"fmt"
-)
+import "strconv"
 
-const (
-	NUMBER_RES = "numbers"
-)
+const numberURI = "numbers"
 
+// Country represents a country.
 type Country struct {
-	Id   string `json:"id"`
+	ID   string `json:"id"`
 	Name string `json:"name"`
 }
 
+// NewNumber represents a new number.
 type NewNumber struct {
-	Id   uint32 `json:"id"`
+	ID   int    `json:"id"`
 	Href string `json:"href"`
 }
 
+// Number represents a number.
 type Number struct {
-	Id          uint32  `json:"id"`
-	User        User    `json:"user"`
-	PurchasedAt string  `json:"purchasedAt"`
-	ExpireAt    string  `json:"expireAt"`
-	Phone       string  `json:"phone"`
-	Country     Country `json:"country"`
-	Status      string  `json:"status"`
+	ID          int      `json:"id"`
+	User        *User    `json:"user"`
+	PurchasedAt string   `json:"purchasedAt"`
+	ExpireAt    string   `json:"expireAt"`
+	Phone       string   `json:"phone"`
+	Country     *Country `json:"country"`
+	Status      string   `json:"status"`
 }
 
+// NumberList represents a number list.
 type NumberList struct {
-	Page      uint32   `json:"page"`
-	Limit     uint8    `json:"limit"`
-	PageCount uint32   `json:"pageCount"`
-	Resources []Number `json:"resources"`
+	Page      int       `json:"page"`
+	Limit     int       `json:"limit"`
+	PageCount int       `json:"pageCount"`
+	Resources []*Number `json:"resources"`
 }
 
+// AvailableNumbers represents available numbers.
 type AvailableNumbers struct {
 	Numbers []string `json:"numbers"`
-	Price   float32  `json:"price"`
+	Price   float64  `json:"price"`
 }
 
-/*
-Get a single dedicated number.
+// GetNumber gets a single dedicated number
+// for the given ID.
+func (c *Client) GetNumber(id int) (*Number, error) {
+	var n *Number
 
-	Parameters:
-
-		id: Dedicated number id.
-*/
-func (client *TextmagicRestClient) GetNumber(id uint32) (*Number, error) {
-	var number = new(Number)
-
-	method := "GET"
-
-	uri := fmt.Sprintf("%s/%s/%d", client.BaseUrl(), NUMBER_RES, id)
-
-	response, err := client.Request(method, uri, nil, nil)
-	if err != nil {
-		return number, err
-	}
-
-	err = json.Unmarshal(response, number)
-
-	return number, err
+	return n, c.get(numberURI+"/"+strconv.Itoa(id), nil, nil, &n)
 }
 
-/*
-Get all user dedicated numbers.
+// GetNumberList returns all user dedicated numbers.
+//
+// The parameter payload includes:
+// - page:	Fetch specified results page.
+// - limit:	How many results on page.
+func (c *Client) GetNumberList(p Params) (*NumberList, error) {
+	var l *NumberList
 
-	Parameters:
-
-		Var `data` may contain next keys:
-
-			page:  Fetch specified results page.
-			limit: How many results on page.
-*/
-func (client *TextmagicRestClient) GetNumberList(data map[string]string) (*NumberList, error) {
-	var numberList = new(NumberList)
-
-	method := "GET"
-	params := transformGetParams(data)
-
-	uri := fmt.Sprintf("%s/%s", client.BaseUrl(), NUMBER_RES)
-
-	response, err := client.Request(method, uri, params, nil)
-	if err != nil {
-		return numberList, err
-	}
-
-	err = json.Unmarshal(response, numberList)
-
-	return numberList, err
+	return l, c.get(numberURI, p, nil, &l)
 }
 
-/*
-Buy a dedicated number and assign it to the specified account.
+// BuyNumber buys a dedicated number and assigns
+// it to the specified account.
+//
+// The data payload includes:
+// - phone:   Desired dedicated phone number in international E.164 format. Required.
+// - country: Dedicated number country. Required.
+// - userId:  User ID this number will be assigned to. Required.
+func (c *Client) BuyNumber(d Params) (*NewNumber, error) {
+	var n *NewNumber
 
-	Parameters:
-
-		Var `data` may contain next keys:
-
-			phone:   Desired dedicated phone number in international E.164 format. Required.
-	        country: Dedicated number country. Required.
-	        userId:  User ID this number will be assigned to. Required.
-*/
-func (client *TextmagicRestClient) BuyNumber(data map[string]string) (*NewNumber, error) {
-	var number = new(NewNumber)
-
-	method := "POST"
-
-	params := preparePostParams(data)
-
-	uri := fmt.Sprintf("%s/%s", client.BaseUrl(), NUMBER_RES)
-
-	response, err := client.Request(method, uri, nil, params)
-	if err != nil {
-		return number, err
-	}
-
-	err = json.Unmarshal(response, number)
-
-	return number, err
+	return n, c.post(numberURI, nil, d, &n)
 }
 
-/*
-Find available dedicated numbers to buy.
+// GetAvailableNumbers finds available dedicated
+// numbers to buy.
+//
+// The parameter payload includes:
+// - country: Dedicated number country. Required.
+// - prefix:  Desired number prefix. Should include country code (i.e. 447 for GB)
+func (c *Client) GetAvailableNumbers(p Params) (*AvailableNumbers, error) {
+	var n *AvailableNumbers
 
-	Parameters:
-
-		Var `data` may contain next keys:
-
-			country: Dedicated number country. Required.
-        	prefix:  Desired number prefix. Should include country code (i.e. 447 for GB)
-*/
-func (client *TextmagicRestClient) GetAvailableNumbers(data map[string]string) (*AvailableNumbers, error) {
-	var numbers = new(AvailableNumbers)
-
-	method := "GET"
-	params := transformGetParams(data)
-
-	uri := fmt.Sprintf("%s/%s/available", client.BaseUrl(), NUMBER_RES)
-
-	response, err := client.Request(method, uri, params, nil)
-	if err != nil {
-		return numbers, err
-	}
-
-	err = json.Unmarshal(response, numbers)
-
-	return numbers, err
+	return n, c.get(numberURI+"/available", p, nil, &n)
 }
 
-/*
-Cancel dedicated number subscription.
-
-	Parameters:
-
-		id: The unique id of the Number. Required.
-*/
-func (client *TextmagicRestClient) CancelNumber(id uint32) (bool, error) {
-	var success bool
-
-	method := "DELETE"
-	uri := fmt.Sprintf("%s/%s/%d", client.BaseUrl(), NUMBER_RES, id)
-
-	response, err := client.Request(method, uri, nil, nil)
-	if err != nil {
-		return false, err
-	}
-	if response[0] == 204 {
-		success = true
-	}
-
-	return success, err
+// CancelNumber cancels the dedicated number
+// subscription for the given ID.
+func (c *Client) CancelNumber(id int) error {
+	return c.delete(numberURI+"/"+strconv.Itoa(id), nil, nil, nil)
 }

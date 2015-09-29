@@ -1,44 +1,38 @@
 package textmagic
 
 import (
-	".."
-	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestTemplates(t *testing.T) {
-	username := "xxx"
-	token := "xxx"
-
-	interval := time.Second
-	client := textmagic.NewClient(username, token)
-
 	time.Sleep(interval)
 	// Create template
 
-	newTemplateData := map[string]string{
+	newTemplateData := Params{
 		"name":    "GO TEMPLATE TEST",
 		"content": "GO TEMPLATE CONTENT",
 	}
 	templateNew, _ := client.CreateTemplate(newTemplateData)
 
-	assert.NotEmpty(t, templateNew.Id)
+	assert.NotEmpty(t, templateNew.ID)
 	assert.NotEmpty(t, templateNew.Href)
 
 	time.Sleep(interval)
 	// Get template by id
 
-	template, _ := client.GetTemplate(templateNew.Id)
+	template, _ := client.GetTemplate(templateNew.ID)
 
-	assert.Equal(t, templateNew.Id, template.Id)
+	assert.Equal(t, templateNew.ID, template.ID)
 	assert.Equal(t, "GO TEMPLATE TEST", template.Name)
 	assert.Equal(t, "GO TEMPLATE CONTENT", template.Content)
 
 	time.Sleep(interval)
 	// Get Templates List
 
-	templates, _ := client.GetTemplateList(map[string]string{}, false)
+	templates, _ := client.GetTemplateList(nil, false)
 
 	assert.NotEmpty(t, templates.Page)
 	assert.NotEmpty(t, templates.Limit)
@@ -48,28 +42,28 @@ func TestTemplates(t *testing.T) {
 	time.Sleep(interval)
 	// Update template
 
-	updatedTemplateData := map[string]string{
+	updatedTemplateData := Params{
 		"name":    "GO TEMPLATE UPD",
 		"content": "GO TEMPLATE CONTENT UPD",
 	}
-	updatedTemplateNew, _ := client.UpdateTemplate(templateNew.Id, updatedTemplateData)
+	updatedTemplateNew, _ := client.UpdateTemplate(templateNew.ID, updatedTemplateData)
 
-	assert.NotEmpty(t, updatedTemplateNew.Id)
+	assert.NotEmpty(t, updatedTemplateNew.ID)
 	assert.NotEmpty(t, updatedTemplateNew.Href)
 
 	time.Sleep(interval)
 	// Get updated template by id
 
-	updatedTemplate, _ := client.GetTemplate(templateNew.Id)
+	updatedTemplate, _ := client.GetTemplate(templateNew.ID)
 
-	assert.Equal(t, templateNew.Id, updatedTemplate.Id)
+	assert.Equal(t, templateNew.ID, updatedTemplate.ID)
 	assert.Equal(t, "GO TEMPLATE UPD", updatedTemplate.Name)
 	assert.Equal(t, "GO TEMPLATE CONTENT UPD", updatedTemplate.Content)
 
 	time.Sleep(interval)
 	// Delete template
 
-	r, _ := client.DeleteTemplate(template.Id)
+	err := client.DeleteTemplate(template.ID)
 
-	assert.True(t, r)
+	assert.Nil(t, err)
 }

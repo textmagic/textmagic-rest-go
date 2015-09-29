@@ -1,31 +1,30 @@
 package textmagic
 
-import (
-	"encoding/json"
-	"fmt"
-)
+import "strconv"
 
 const (
-	MESSAGE_RES   = "messages"
-	BULK_RES      = "bulks"
-	CHAT_RES      = "chats"
-	REPLY_RES     = "replies"
-	SCHEDULED_RES = "schedules"
-	SESSION_RES   = "sessions"
+	messageURI   = "messages"
+	bulkURI      = "bulks"
+	chatURI      = "chats"
+	replyURI     = "replies"
+	scheduledURI = "schedules"
+	sessionURI   = "sessions"
 )
 
+// NewMessage represents a new message.
 type NewMessage struct {
-	Id         uint32 `json:"id"`
+	ID         int    `json:"id"`
 	Href       string `json:"href"`
 	Type       string `json:"type"`
-	SessionId  uint32 `json:"sessionId"`
-	BulkId     uint32 `json:"bulkId"`
-	MessageId  uint32 `json:"messageId"`
-	ScheduleId uint32 `json:"scheduleId"`
+	SessionID  int    `json:"sessionId"`
+	BulkID     int    `json:"bulkId"`
+	MessageID  int    `json:"messageId"`
+	ScheduleID int    `json:"scheduleId"`
 }
 
+// Message represents a message.
 type Message struct {
-	Id          uint32  `json:"id"`
+	ID          int     `json:"id"`
 	Receiver    string  `json:"receiver"`
 	MessageTime string  `json:"messageTime"`
 	Status      string  `json:"status"`
@@ -35,68 +34,76 @@ type Message struct {
 	LastName    string  `json:"lastName"`
 	Country     string  `json:"country"`
 	Sender      string  `json:"sender"`
-	Price       float32 `json:"price"`
-	PartsCount  uint8   `json:"partsCount"`
+	Price       float64 `json:"price"`
+	PartsCount  int     `json:"partsCount"`
 }
 
+// MessageList represents a message list.
 type MessageList struct {
-	Page      uint32    `json:"page"`
-	Limit     uint8     `json:"limit"`
-	PageCount uint32    `json:"pageCount"`
-	Resources []Message `json:"resources"`
+	Page      int        `json:"page"`
+	Limit     int        `json:"limit"`
+	PageCount int        `json:"pageCount"`
+	Resources []*Message `json:"resources"`
 }
 
+// Session represents a session.
 type Session struct {
-	Id           uint32  `json:"id"`
+	ID           int     `json:"id"`
 	StartTime    string  `json:"startTime"`
 	Text         string  `json:"text"`
 	Source       string  `json:"source"`
-	ReferenceId  string  `json:"referenceId"`
-	Price        float32 `json:"price"`
-	NumbersCount uint32  `json:"numbersCount"`
+	ReferenceID  string  `json:"referenceId"`
+	Price        float64 `json:"price"`
+	NumbersCount int     `json:"numbersCount"`
 }
 
+// SessionList represents a session list.
 type SessionList struct {
-	Page      uint32    `json:"page"`
-	Limit     uint8     `json:"limit"`
-	PageCount uint32    `json:"pageCount"`
-	Resources []Session `json:"resources"`
+	Page      int        `json:"page"`
+	Limit     int        `json:"limit"`
+	PageCount int        `json:"pageCount"`
+	Resources []*Session `json:"resources"`
 }
 
+// BulkSession represents a bulk session.
 type BulkSession struct {
-	Id             uint32  `json:"id"`
-	Status         string  `json:"status"`
-	ItemsProcessed uint32  `json:"itemsProcessed"`
-	ItemsTotal     uint32  `json:"itemsTotal"`
-	CreatedAt      string  `json:"createdAt"`
-	Session        Session `json:"session"`
-	Text           string  `json:"text"`
+	ID             int      `json:"id"`
+	Status         string   `json:"status"`
+	ItemsProcessed int      `json:"itemsProcessed"`
+	ItemsTotal     int      `json:"itemsTotal"`
+	CreatedAt      string   `json:"createdAt"`
+	Session        *Session `json:"session"`
+	Text           string   `json:"text"`
 }
 
+// BulkSessionList represents a bulk session list.
 type BulkSessionList struct {
-	Page      uint32        `json:"page"`
-	Limit     uint8         `json:"limit"`
-	PageCount uint32        `json:"pageCount"`
-	Resources []BulkSession `json:"resources"`
+	Page      int            `json:"page"`
+	Limit     int            `json:"limit"`
+	PageCount int            `json:"pageCount"`
+	Resources []*BulkSession `json:"resources"`
 }
 
+// Chat represents a chat item.
 type Chat struct {
-	Id        uint32  `json:"id"`
-	Phone     string  `json:"phone"`
-	Contact   Contact `json:"contact"`
-	Unread    uint32  `json:"unread"`
-	UpdatedAt string  `json:"updatedAt"`
+	ID        int      `json:"id"`
+	Phone     string   `json:"phone"`
+	Contact   *Contact `json:"contact"`
+	Unread    int      `json:"unread"`
+	UpdatedAt string   `json:"updatedAt"`
 }
 
+// ChatList represents a chat item list.
 type ChatList struct {
-	Page      uint32 `json:"page"`
-	Limit     uint8  `json:"limit"`
-	PageCount uint32 `json:"pageCount"`
-	Resources []Chat `json:"resources"`
+	Page      int     `json:"page"`
+	Limit     int     `json:"limit"`
+	PageCount int     `json:"pageCount"`
+	Resources []*Chat `json:"resources"`
 }
 
+// ChatMessage represents a chat message.
 type ChatMessage struct {
-	Id          uint32 `json:"id"`
+	ID          int    `json:"id"`
 	Sender      string `json:"sender"`
 	MessageTime string `json:"messageTime"`
 	Text        string `json:"text"`
@@ -106,575 +113,277 @@ type ChatMessage struct {
 	LastName    string `json:"lastName"`
 }
 
+// ChatMessageList represents a chat message list.
 type ChatMessageList struct {
-	Page      uint32        `json:"page"`
-	Limit     uint8         `json:"limit"`
-	PageCount uint32        `json:"pageCount"`
-	Resources []ChatMessage `json:"resources"`
+	Page      int            `json:"page"`
+	Limit     int            `json:"limit"`
+	PageCount int            `json:"pageCount"`
+	Resources []*ChatMessage `json:"resources"`
 }
 
+// CountryPrice represents a country price.
 type CountryPrice struct {
 	Country string  `json:"country"`
-	Count   uint32  `json:"count"`
-	Max     float32 `json:"max"`
+	Count   int     `json:"count"`
+	Max     float64 `json:"max"`
 }
 
+// MessagePrice represents a message price.
 type MessagePrice struct {
-	Total     float32                 `json:"total"`
-	Parts     uint8                   `json:"parts"`
-	Countries map[string]CountryPrice `json:"countries"`
+	Total     float64                  `json:"total"`
+	Parts     int                      `json:"parts"`
+	Countries map[string]*CountryPrice `json:"countries"`
 }
 
+// Reply represents a reply.
 type Reply struct {
-	Id          uint32 `json:"id"`
+	ID          int    `json:"id"`
 	Sender      string `json:"sender"`
 	MessageTime string `json:"messageTime"`
 	Text        string `json:"text"`
 	Receiver    string `json:"receiver"`
 }
 
+// ReplyList represents a reply list.
 type ReplyList struct {
-	Page      uint32  `json:"page"`
-	Limit     uint8   `json:"limit"`
-	PageCount uint32  `json:"pageCount"`
-	Resources []Reply `json:"resources"`
+	Page      int      `json:"page"`
+	Limit     int      `json:"limit"`
+	PageCount int      `json:"pageCount"`
+	Resources []*Reply `json:"resources"`
 }
 
+// Scheduled represents a scheduled item.
 type Scheduled struct {
-	Id       uint32  `json:"id"`
-	NextSend string  `json:"nextSend"`
-	Rrule    string  `json:"rrule"`
-	Session  Session `json:"session"`
+	ID       int      `json:"id"`
+	NextSend string   `json:"nextSend"`
+	Rrule    string   `json:"rrule"`
+	Session  *Session `json:"session"`
 }
 
+// ScheduledList represents a scheduled item list.
 type ScheduledList struct {
-	Page      uint32      `json:"page"`
-	Limit     uint8       `json:"limit"`
-	PageCount uint32      `json:"pageCount"`
-	Resources []Scheduled `json:"resources"`
+	Page      int          `json:"page"`
+	Limit     int          `json:"limit"`
+	PageCount int          `json:"pageCount"`
+	Resources []*Scheduled `json:"resources"`
 }
 
-/*
-Create and send a new outbound message.
+// CreateMessage creates and sends a new outbound
+// message with the corresponding POST DATA.
+//
+// The data payload includes:
+// - text:			Message text. Required if template_id is not set.
+// - templateId:	Template used instead of message text. Required if text is not set.
+// - sendingTime:	Message sending time in Unix timestamp format. Default is now. Optional (required with recurrency_rule set).
+// - contacts:		Contacts ids, separated by comma, message will be sent to.
+// - lists:			Lists ids, separated by comma, message will be sent to.
+// - phones:		Phone numbers, separated by comma, message will be sent to.
+// - cutExtra:		Should sending method cut extra characters which not fit supplied parts_count or return 400 Bad request response instead.
+// - partsCount:	Maximum message parts count (TextMagic allows sending 1 to 6 message parts).
+// - referenceId:	Custom message reference id which can be used in your application infrastructure.
+// - from:			One of allowed Sender ID (phone number or alphanumeric sender ID).
+// - rrule:			iCal RRULE parameter to create recurrent scheduled messages. When used, sending_time is mandatory as start point of sending.
+func (c *Client) CreateMessage(d Params) (*NewMessage, error) {
+	var m *NewMessage
 
-    Parameters:
-
-        Var `data` may contain next keys:
-
-			text:         Message text. Required if template_id is not set.
-			templateId:   Template used instead of message text. Required if text is not set.
-			sendingTime:  Message sending time in unix timestamp format. Default is now. Optional (required with recurrency_rule set).
-			contacts:     Contacts ids, separated by comma, message will be sent to.
-			lists:        Lists ids, separated by comma, message will be sent to.
-			phones:       Phone numbers, separated by comma, message will be sent to.
-			cutExtra:     Should sending method cut extra characters which not fit supplied parts_count or return 400 Bad request response instead.
-			partsCount:   Maximum message parts count (TextMagic allows sending 1 to 6 message parts).
-			referenceId:  Custom message reference id which can be used in your application infrastructure.
-			from:        One of allowed Sender ID (phone number or alphanumeric sender ID).
-			rrule:        iCal RRULE parameter to create recurrent scheduled messages. When used, sending_time is mandatory as start point of sending.
-*/
-func (client *TextmagicRestClient) CreateMessage(data map[string]string) (*NewMessage, error) {
-	var message = new(NewMessage)
-
-	method := "POST"
-
-	params := preparePostParams(data)
-
-	uri := fmt.Sprintf("%s/%s", client.BaseUrl(), MESSAGE_RES)
-
-	response, err := client.Request(method, uri, nil, params)
-	if err != nil {
-		return message, err
-	}
-
-	err = json.Unmarshal(response, message)
-
-	return message, err
+	return m, c.post(messageURI, nil, d, &m)
 }
 
-/*
-Get a single outgoing message.
+// GetMessage returns a single outgoing message by ID.
+func (c *Client) GetMessage(id int) (*Message, error) {
+	var m *Message
 
-    Parameters:
-
-        id: Message id.
-*/
-func (client *TextmagicRestClient) GetMessage(id uint32) (*Message, error) {
-	var message = new(Message)
-
-	method := "GET"
-
-	uri := fmt.Sprintf("%s/%s/%d", client.BaseUrl(), MESSAGE_RES, id)
-
-	response, err := client.Request(method, uri, nil, nil)
-	if err != nil {
-		return message, err
-	}
-
-	err = json.Unmarshal(response, message)
-
-	return message, err
+	return m, c.get(messageURI+"/"+strconv.Itoa(id), nil, nil, &m)
 }
 
-/*
-Get all user oubound messages.
+// GetMessageList returns all user outbound messages.
+//
+// The parameter payload includes:
+// - page:	Fetch specified results page.
+// - limit:	How many results on page.
+func (c *Client) GetMessageList(p Params, search bool) (*MessageList, error) {
+	var l *MessageList
 
-    Parameters:
-
-        Var `data` may contain next keys:
-
-            page:   	Fetch specified results page.
-            limit:  	How many results on page.
-	        ids:        Find message by ID(s). Using with `search`=true.
-	        sessionId:  Find messages by session ID. Using with `search`=true.
-	        query:      Find messages by specified search query. Using with `search`=true.
-
-        search: If true then search messages using `ids`, `sessionId`, and/or `query`.
-*/
-func (client *TextmagicRestClient) GetMessageList(data map[string]string, search bool) (*MessageList, error) {
-	var messageList = new(MessageList)
-
-	method := "GET"
-	params := transformGetParams(data)
-
-	uri := fmt.Sprintf("%s/%s", client.BaseUrl(), MESSAGE_RES)
-	if search {
-		uri += "/search"
-	}
-
-	response, err := client.Request(method, uri, params, nil)
-	if err != nil {
-		return messageList, err
-	}
-
-	err = json.Unmarshal(response, messageList)
-
-	return messageList, err
+	return l, c.get(messageURI, p, nil, &l)
 }
 
-/*
-Get bulk message session.
+// SearchMessageList returns all user outbound messages
+// for the given search
+//
+// The parameter payload includes:
+// - page:		Fetch specified results page.
+// - limit:		How many results on page.
+// - ids:		Find message by ID(s).
+// - sessionId:	Find messages by session ID.
+// - query:		Find messages by specified search query.
+func (c *Client) SearchMessageList(p Params) (*MessageList, error) {
+	var l *MessageList
 
-    Parameters:
-
-        id: Bulk session id.
-*/
-func (client *TextmagicRestClient) GetBulkSession(id uint32) (*BulkSession, error) {
-	bulk := new(BulkSession)
-
-	method := "GET"
-	uri := fmt.Sprintf("%s/%s/%d", client.BaseUrl(), BULK_RES, id)
-
-	response, err := client.Request(method, uri, nil, nil)
-	if err != nil {
-		return bulk, err
-	}
-
-	err = json.Unmarshal(response, bulk)
-
-	return bulk, err
+	return l, c.get(messageURI+"/search", p, nil, &l)
 }
 
-/*
-Get all bulk sending sessions.
+// GetBulkSession returns the bulk message
+// session by ID.
+func (c *Client) GetBulkSession(id int) (*BulkSession, error) {
+	var b *BulkSession
 
-	Parameters:
-
-		Var `data` may contain next keys:
-
-			page:  Fetch specified results page.
-			limit: How many results on page.
-*/
-func (client *TextmagicRestClient) GetBulkSessionList(data map[string]string) (*BulkSessionList, error) {
-	var bulkSessionList = new(BulkSessionList)
-
-	method := "GET"
-	params := transformGetParams(data)
-
-	uri := fmt.Sprintf("%s/%s", client.BaseUrl(), BULK_RES)
-
-	response, err := client.Request(method, uri, params, nil)
-	if err != nil {
-		return bulkSessionList, err
-	}
-
-	err = json.Unmarshal(response, bulkSessionList)
-
-	return bulkSessionList, err
+	return b, c.get(bulkURI, nil, nil, &b)
 }
 
-/*
-Fetch messages from chat with specified phone number.
+// GetBulkSessionList returns all bulk sending sessions.
+//
+// The parameter payload includes:
+// - page:	Fetch specified results page.
+// - limit:	How many results on page.
+func (c *Client) GetBulkSessionList(p Params) (*BulkSessionList, error) {
+	var l *BulkSessionList
 
-	Parameters:
-
-		phone: Phone number in E.164 format.
-
-		Var `data` may contain next keys:
-
-	        page:  Fetch specified results page.
-	        limit: How many results on page.
-*/
-func (client *TextmagicRestClient) GetChatMessageList(phone string, data map[string]string) (*ChatMessageList, error) {
-	chatMessageList := new(ChatMessageList)
-
-	method := "GET"
-	uri := fmt.Sprintf("%s/%s/%s", client.BaseUrl(), CHAT_RES, phone)
-	params := transformGetParams(data)
-
-	response, err := client.Request(method, uri, params, nil)
-	if err != nil {
-		return chatMessageList, err
-	}
-
-	err = json.Unmarshal(response, chatMessageList)
-
-	return chatMessageList, err
+	return l, c.get(bulkURI, p, nil, &l)
 }
 
-/*
-Get all user chats.
+// GetChatMessageList returns all messages from
+// chat with specified phone number.
+//
+// The parameter payload includes:
+// - page:	Fetch specified results page.
+// - limit:	How many results on page.
+func (c *Client) GetChatMessageList(phone string, p Params) (*ChatMessageList, error) {
+	var l *ChatMessageList
 
-	Parameters:
-
-		Var `data` may contain next keys:
-
-	        page:  Fetch specified results page.
-	        limit: How many results on page.
-*/
-func (client *TextmagicRestClient) GetChatList(data map[string]string) (*ChatList, error) {
-	chatList := new(ChatList)
-
-	method := "GET"
-	uri := fmt.Sprintf("%s/%s", client.BaseUrl(), CHAT_RES)
-	params := transformGetParams(data)
-
-	response, err := client.Request(method, uri, params, nil)
-	if err != nil {
-		return chatList, err
-	}
-
-	err = json.Unmarshal(response, chatList)
-
-	return chatList, err
+	return l, c.get(chatURI, p, nil, &l)
 }
 
-/*
-Check pricing for a new outbound message.
+// GetChatList returns all user chats.
+//
+// The parameter payload includes:
+// - page:	Fetch specified results page.
+// - limit:	How many results on page.
+func (c *Client) GetChatList(p Params) (*ChatList, error) {
+	var l *ChatList
 
-    Parameters:
-
-        Var `data` may contain next keys:
-
-			text:         Message text. Required if template_id is not set.
-			templateId:   Template used instead of message text. Required if text is not set.
-			sendingTime:  Message sending time in unix timestamp format. Default is now. Optional (required with recurrency_rule set).
-			contacts:     Contacts ids, separated by comma, message will be sent to.
-			lists:        Lists ids, separated by comma, message will be sent to.
-			phones:       Phone numbers, separated by comma, message will be sent to.
-			cutExtra:     Should sending method cut extra characters which not fit supplied parts_count or return 400 Bad request response instead.
-			partsCount:   Maximum message parts count (TextMagic allows sending 1 to 6 message parts).
-			referenceId:  Custom message reference id which can be used in your application infrastructure.
-			from:         One of allowed Sender ID (phone number or alphanumeric sender ID).
-			rrule:        iCal RRULE parameter to create recurrent scheduled messages. When used, sending_time is mandatory as start point of sending.
-*/
-func (client *TextmagicRestClient) GetMessagePrice(data map[string]string) (*MessagePrice, error) {
-	price := new(MessagePrice)
-
-	method := "GET"
-	params := transformGetParams(data)
-	uri := fmt.Sprintf("%s/%s/price", client.BaseUrl(), MESSAGE_RES)
-
-	response, err := client.Request(method, uri, params, nil)
-	if err != nil {
-		return price, err
-	}
-
-	err = json.Unmarshal(response, price)
-
-	return price, err
+	return l, c.get(chatURI, p, nil, &l)
 }
 
-/*
-Delete the specified Message from TextMagic.
+// GetMessagePrice checks pricing for a
+// new outbound message.
+//
+// The parameter payload includes:
+// - text:         	Message text. Required if template_id is not set.
+// - templateId:   	Template used instead of message text. Required if text is not set.
+// - sendingTime:	Message sending time in Unix timestamp format. Default is now. Optional (required with recurrency_rule set).
+// - contacts:		Contacts ids, separated by comma, message will be sent to.
+// - lists:			Lists ids, separated by comma, message will be sent to.
+// - phones:		Phone numbers, separated by comma, message will be sent to.
+// - cutExtra:     	Should sending method cut extra characters which not fit supplied parts_count or return 400 Bad request response instead.
+// - partsCount:   	Maximum message parts count (TextMagic allows sending 1 to 6 message parts).
+// - referenceId:	Custom message reference id which can be used in your application infrastructure.
+// - from:         	One of allowed Sender ID (phone number or alphanumeric sender ID).
+// - rrule:        	iCal RRULE parameter to create recurrent scheduled messages. When used, sending_time is mandatory as start point of sending.
+func (c *Client) GetMessagePrice(p Params) (*MessagePrice, error) {
+	var m *MessagePrice
 
-	Parameters:
-
-		id: The unique id of the Message. Required.
-*/
-func (client *TextmagicRestClient) DeleteMessage(id uint32) (bool, error) {
-	var success bool
-
-	method := "DELETE"
-	uri := fmt.Sprintf("%s/%s/%d", client.BaseUrl(), MESSAGE_RES, id)
-
-	response, err := client.Request(method, uri, nil, nil)
-	if err != nil {
-		return false, err
-	}
-	if response[0] == 204 {
-		success = true
-	}
-
-	return success, err
+	return m, c.get(messageURI+"/price", p, nil, &m)
 }
 
-/*
-Get a single inbound message
-
-	Parameters:
-
-		id: Inbound message id.
-*/
-func (client *TextmagicRestClient) GetReply(id uint32) (*Reply, error) {
-	reply := new(Reply)
-
-	method := "GET"
-	uri := fmt.Sprintf("%s/%s/%d", client.BaseUrl(), REPLY_RES, id)
-
-	response, err := client.Request(method, uri, nil, nil)
-	if err != nil {
-		return reply, err
-	}
-
-	err = json.Unmarshal(response, reply)
-
-	return reply, err
+// DeleteMessage deletes the message with the given ID.
+func (c *Client) DeleteMessage(id int) error {
+	return c.delete(messageURI+"/"+strconv.Itoa(id), nil, nil, nil)
 }
 
-/*
-Get all user inbound messages.
+// GetReply returns a single inbound message by ID.
+func (c *Client) GetReply(id int) (*Reply, error) {
+	var r *Reply
 
-    Parameters:
-
-        Var `data` may contain next keys:
-
-            page:   	Fetch specified results page.
-            limit:  	How many results on page.
-	        ids:        Find replies by ID(s). Using with `search`=true.
-	        query:      Find replies by specified search query. Using with `search`=true.
-
-        search: If true then search messages using `ids` and/or `query`.
-*/
-func (client *TextmagicRestClient) GetReplyList(data map[string]string, search bool) (*ReplyList, error) {
-	replyList := new(ReplyList)
-
-	method := "GET"
-	uri := fmt.Sprintf("%s/%s", client.BaseUrl(), REPLY_RES)
-	if search {
-		uri += "/search"
-	}
-	params := transformGetParams(data)
-
-	response, err := client.Request(method, uri, params, nil)
-	if err != nil {
-		return replyList, err
-	}
-
-	err = json.Unmarshal(response, replyList)
-
-	return replyList, err
+	return r, c.get(replyURI+"/"+strconv.Itoa(id), nil, nil, &r)
 }
 
-/*
-Delete the specified Reply from TextMagic.
+// GetReplyList returns all user inbound messages.
+//
+// The parameter payload includes:
+// - page:	Fetch specified results page.
+// - limit:	How many results on page.
+func (c *Client) GetReplyList(p Params, search bool) (*ReplyList, error) {
+	var l *ReplyList
 
-	Parameters:
-
-		id: The unique id of the Reply. Required.
-*/
-func (client *TextmagicRestClient) DeleteReply(id uint32) (bool, error) {
-	var success bool
-
-	method := "DELETE"
-	uri := fmt.Sprintf("%s/%s/%d", client.BaseUrl(), REPLY_RES, id)
-
-	response, err := client.Request(method, uri, nil, nil)
-	if err != nil {
-		return false, err
-	}
-	if response[0] == 204 {
-		success = true
-	}
-
-	return success, err
+	return l, c.get(replyURI, p, nil, &l)
 }
 
-/*
-Get a single scheduled message.
+// SearchReplyList returns all user chats.
+//
+// The parameter payload includes:
+// - page:		Fetch specified results page.
+// - limit:		How many results on page.
+// - ids:		Find replies by ID(s).
+// - query:		Find replies by specified search query.
+func (c *Client) SearchReplyList(p Params) (*ReplyList, error) {
+	var l *ReplyList
 
-	Parameters:
-
-		id: Scheduled message id.
-*/
-func (client *TextmagicRestClient) GetScheduled(id uint32) (*Scheduled, error) {
-	scheduled := new(Scheduled)
-
-	method := "GET"
-	uri := fmt.Sprintf("%s/%s/%d", client.BaseUrl(), SCHEDULED_RES, id)
-
-	response, err := client.Request(method, uri, nil, nil)
-	if err != nil {
-		return scheduled, err
-	}
-
-	err = json.Unmarshal(response, scheduled)
-
-	return scheduled, err
+	return l, c.get(replyURI+"/search", p, nil, &l)
 }
 
-/*
-Get all user scheduled messages.
-
-    Parameters:
-
-        Var `data` may contain next keys:
-
-            page:   	Fetch specified results page.
-            limit:  	How many results on page.
-*/
-func (client *TextmagicRestClient) GetScheduledList(data map[string]string) (*ScheduledList, error) {
-	scheduledList := new(ScheduledList)
-
-	method := "GET"
-	uri := fmt.Sprintf("%s/%s", client.BaseUrl(), SCHEDULED_RES)
-	params := transformGetParams(data)
-
-	response, err := client.Request(method, uri, params, nil)
-	if err != nil {
-		return scheduledList, err
-	}
-
-	err = json.Unmarshal(response, scheduledList)
-
-	return scheduledList, err
+// DeleteReply deletes the reply with the given ID.
+func (c *Client) DeleteReply(id int) error {
+	return c.delete(replyURI+"/"+strconv.Itoa(id), nil, nil, nil)
 }
 
-/*
-Delete the specified Scheduled Message from TextMagic.
+// GetScheduled returns the single scheduled item
+// with the given ID.
+func (c *Client) GetScheduled(id int) (*Scheduled, error) {
+	var s *Scheduled
 
-	Parameters:
-
-		id: The unique id of the ScheduledMessage. Required.
-*/
-func (client *TextmagicRestClient) DeleteScheduled(id uint32) (bool, error) {
-	var success bool
-
-	method := "DELETE"
-
-	uri := fmt.Sprintf("%s/%s/%d", client.BaseUrl(), SCHEDULED_RES, id)
-
-	response, err := client.Request(method, uri, nil, nil)
-	if err != nil {
-		return false, err
-	}
-	if response[0] == 204 {
-		success = true
-	}
-
-	return success, err
+	return s, c.get(scheduledURI+"/"+strconv.Itoa(id), nil, nil, &s)
 }
 
-/*
-Get a single message session.
+// GetScheduledList returns all user scheduled messages.
+//
+// The parameter payload includes:
+// - page:	Fetch specified results page.
+// - limit:	How many results on page.
+func (c *Client) GetScheduledList(p Params) (*ScheduledList, error) {
+	var l *ScheduledList
 
-	Parameters:
-
-		id: Message session id
-*/
-func (client *TextmagicRestClient) GetSession(id uint32) (*Session, error) {
-	session := new(Session)
-
-	method := "GET"
-	uri := fmt.Sprintf("%s/%s/%d", client.BaseUrl(), SESSION_RES, id)
-
-	response, err := client.Request(method, uri, nil, nil)
-	if err != nil {
-		return session, err
-	}
-
-	err = json.Unmarshal(response, session)
-
-	return session, err
+	return l, c.get(scheduledURI, p, nil, &l)
 }
 
-/*
-Get all user message session.
-
-	Parameters:
-
-		Var `data` may contains next keys:
-
-			page:   	Fetch specified results page.
-            limit:  	How many results on page.
-*/
-func (client *TextmagicRestClient) GetSessionList(data map[string]string) (*SessionList, error) {
-	sessions := new(SessionList)
-
-	method := "GET"
-	uri := fmt.Sprintf("%s/%s", client.BaseUrl(), SESSION_RES)
-	params := transformGetParams(data)
-
-	response, err := client.Request(method, uri, params, nil)
-	if err != nil {
-		return sessions, err
-	}
-
-	err = json.Unmarshal(response, sessions)
-
-	return sessions, err
+// DeleteScheduled deletes the scheduled message
+// with the given ID.
+func (c *Client) DeleteScheduled(id int) error {
+	return c.delete(scheduledURI+"/"+strconv.Itoa(id), nil, nil, nil)
 }
 
-/*
-Delete the specified Message Session from TextMagic.
+// GetSession returns the single session
+// with the given ID.
+func (c *Client) GetSession(id int) (*Session, error) {
+	var s *Session
 
-	Parameters:
-
-		id: The unique id of the Session. Required.
-*/
-func (client *TextmagicRestClient) DeleteSession(id uint32) (bool, error) {
-	var success bool
-
-	method := "DELETE"
-	uri := fmt.Sprintf("%s/%s/%d", client.BaseUrl(), SESSION_RES, id)
-
-	response, err := client.Request(method, uri, nil, nil)
-	if err != nil {
-		return false, err
-	}
-	if response[0] == 204 {
-		success = true
-	}
-
-	return success, err
+	return s, c.get(sessionURI+"/"+strconv.Itoa(id), nil, nil, &s)
 }
 
-/*
-Fetch messages by given session id.
-An useful synonym for "messages/search" command with provided `sessionId` parameter.
+// GetSessionList returns all user message sessions.
+//
+// The parameter payload includes:
+// - page:	Fetch specified results page.
+// - limit:	How many results on page.
+func (c *Client) GetSessionList(p Params) (*SessionList, error) {
+	var l *SessionList
 
-	Parameters:
+	return l, c.get(sessionURI, p, nil, &l)
+}
 
-		id:   The unique id of the Session. Required.
+// DeleteSession deletes the message session with
+// the given ID.
+func (c *Client) DeleteSession(id int) error {
+	return c.delete(sessionURI+"/"+strconv.Itoa(id), nil, nil, nil)
+}
 
-		Var `data` may contains next keys:
+// GetSessionMessages fetches messages bound by
+// the given session ID.
+//
+// The parameter payload includes:
+// - page:	Fetch specified results page.
+// - limit:	How many results on page.
+func (c *Client) GetSessionMessages(id int, p Params) (*MessageList, error) {
+	var l *MessageList
 
-			page:  Fetch specified results page.
-			limit: How many results on page.
-*/
-func (client *TextmagicRestClient) GetSessionMessages(id uint32, data map[string]string) (*MessageList, error) {
-	messageList := new(MessageList)
-
-	method := "GET"
-	uri := fmt.Sprintf("%s/%s/%d/messages", client.BaseUrl(), SESSION_RES, id)
-	params := transformGetParams(data)
-
-	response, err := client.Request(method, uri, params, nil)
-	if err != nil {
-		return messageList, err
-	}
-
-	err = json.Unmarshal(response, messageList)
-
-	return messageList, err
+	return l, c.get(sessionURI+"/"+strconv.Itoa(id)+"/messages", p, nil, &l)
 }
